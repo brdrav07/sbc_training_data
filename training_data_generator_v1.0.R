@@ -58,8 +58,7 @@ packages <- c(
   "arrow", 
   "purrr", 
   "furrr", 
-  "fs", 
-  "here", 
+  "fs",
   "jsonlite", 
   "sf", 
   "lwgeom", 
@@ -78,69 +77,40 @@ rm(installed_packages, packages, pkg)
 gc()
 
 # 1.3) Set up directories and wd
+# Define project root (typically getwd(), but could be set manually if needed)
+project_root <- getwd()
+
+# Create top-level folders
 proj_folders <- c("archive", "project_data", "scripts")
 invisible(lapply(proj_folders, function(folder) {
-  path <- here(folder)
-  if (!dir.exists(path)) {
-    dir.create(path)
-    message(sprintf("'%s' folder created.", folder))
-  } else {
-    message(sprintf("'%s' folder already exists.", folder))
-  }
-}))
-setwd(here("project_data"))
-message("Working directory set to: ", getwd())
-
-subfolders <- c("training_data_inputs", "spatial_inputs", "tabular_inputs", "intermediates", "outputs")
-invisible(lapply(subfolders, function(folder) {
-  if (!dir.exists(folder)) {
-    dir.create(folder)
-    message(sprintf("'%s' folder created.", folder))
-  } else {
-    message(sprintf("'%s' folder already exists.", folder))
-  }
-}))
-int_dir <-file.path("intermediates/")
-output_dir <- file.path("outputs/")
-
-
-
-
-
-
-
-# Top-level project folders
-proj_folders <- c("archive", "project_data", "scripts")
-
-for (folder in proj_folders) {
-  path <- here(folder)
+  path <- file.path(project_root, folder)
   if (!dir.exists(path)) {
     dir.create(path, recursive = TRUE)
-    message(sprintf("Created top-level folder: %s", path))
+    message(sprintf("'%s' folder created.", folder))
   } else {
-    message(sprintf("Top-level folder already exists: %s", path))
+    message(sprintf("'%s' folder already exists.", folder))
   }
-}
+}))
 
-# Subfolders inside 'project_data'
-subfolders <- c("training_data_inputs", "spatial_inputs", "tabular_inputs", "intermediates", "outputs")
-
-for (folder in subfolders) {
-  full_path <- here("project_data", folder)
-  if (!dir.exists(full_path)) {
-    dir.create(full_path, recursive = TRUE)
-    message(sprintf("Created subfolder: %s", full_path))
+# Create subfolders inside 'project_data'
+subfolders <- c("training_data_inputs", "spatial_inputs", "tabular_inputs", 
+                "intermediates", "outputs")
+invisible(lapply(subfolders, function(sub) {
+  path <- file.path(project_root, "project_data", sub)
+  if (!dir.exists(path)) {
+    dir.create(path, recursive = TRUE)
+    message(sprintf("'%s' folder created.", file.path("project_data", sub)))
   } else {
-    message(sprintf("Subfolder already exists: %s", full_path))
+    message(sprintf("'%s' folder already exists.", file.path("project_data", sub)))
   }
-}
+}))
 
-# Define reusable paths (absolute, no need to change wd)
-int_dir <- here("project_data", "intermediates")
-output_dir <- here("project_data", "outputs")
-
-# Optional: Show current working directory (unchanged)
-message("Working directory remains: ", getwd())
+# Define full paths to subfolders for later use
+spat_in_dir  <- file.path(project_root, "project_data", "spatial_inputs")
+tab_in_dir   <- file.path(project_root, "project_data", "tabular_inputs")
+train_in_dir <- file.path(project_root, "project_data", "training_data_inputs")
+int_dir      <- file.path(project_root, "project_data", "intermediates")
+out_dir      <- file.path(project_root, "project_data", "outputs")
 
 
 
