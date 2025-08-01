@@ -1,7 +1,5 @@
 ## READ ME
-
-# This script generates Spatial BioCondition training datasets by generating a pool of sites from various sources, scoring them against benchmarks, and then
-# assesses each site against a series of auditing criteria. Spatial datasets are available via QSpatial or TERN data portal.This workflow has several parts:
+This script generates Spatial BioCondition training datasets by generating a pool of sites from various sources, scoring them against benchmarks, and then assesses each site against a series of auditing criteria. Spatial datasets are available via QSpatial or TERN data portal.This workflow has several parts:
 
 # 1) Workspace setup: creates the project directory structure and loads required libraries
 # 2) Site summaries: imports and processes raw tabular data from QBEIS and QBERD to generate site summaries of BioCondition attributes
