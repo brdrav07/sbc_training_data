@@ -71,7 +71,6 @@ for (pkg in packages) {
     install.packages(pkg)
   }
 }
-
 lapply(packages, library, character.only = TRUE)
 rm(installed_packages, packages, pkg)
 gc()
@@ -198,9 +197,9 @@ out_dir      <- file.path(project_root, "project_data", "outputs")
 # FROM training_data_deficit_v1.0 -> calculates site thresholds based on latest version of RE mapping
 # 3.1) Import data
 # TODO: Injest and process raw gdb and calculate area in R to replace manual QGIS step - read then write as 2d gpkg to be imported?
-preclear_SBC <- read.csv("tabular_inputs/PC_RE_v14_3577_aream2_SBCfiltered.csv") # done in QGIS due to Z dimension in RE mapping? Layer from gdb, exported as gpkg 3577, then $area - area_m2, export csv
-redd <- read.csv("tabular_inputs/REDD_v13.1_2024.csv")
-re <- read.csv("tabular_inputs/regional_ecosystem_2024.csv")
+preclear_SBC <- read.csv(file.path(tab_in_dir, "PC_RE_v14_3577_aream2_SBCfiltered.csv")) # done in QGIS due to Z dimension in RE mapping? Layer from gdb, exported as gpkg 3577, then $area - area_m2, export csv
+redd <- read.csv(file.path(tab_in_dir, "REDD_v13.1_2024.csv"))
+re <- read.csv(file.path(tab_in_dir, "regional_ecosystem_2024.csv"))
 
 # 3.2) Calculate preclear hectare summary and number of reference sites required
 preclear_SBC_summary <- preclear_SBC %>%
@@ -246,7 +245,7 @@ preclear_SBC_summary <- preclear_SBC_summary %>%
   )
 
 # 3.4) Write and clean up
-# write.csv(preclear_summary, "tabular_inputs/SBC_td_deficit_REv14.csv", row.names = FALSE)
+# write.csv(preclear_summary, file = file.path(int_dir, "SBC_td_deficit_REv14.csv"), row.names = FALSE)
 rm(preclear_SBC)
 gc()
 
