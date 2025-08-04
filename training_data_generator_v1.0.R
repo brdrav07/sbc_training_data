@@ -637,255 +637,92 @@ TD_POOL_SCORED_sf <- TD_POOL_SCORED_sf[, reordered_cols]
 TD_POOL_SCORED_sf <- TD_POOL_SCORED_sf %>%
   mutate(across(starts_with("FIRE_MONTH_"), ~ ifelse(. < 1 | . > 12, NA, .)))
 
-# Vectorised function to process fire metrics
+# Improved function to process fire metrics using data.table for efficiency
 process_fire_metrics <- function(TD_POOL_SCORED_sf, start_year = 1987) {
-  # Drop geometry and extract FIRE_MONTH columns as numeric matrix
-  fire_cols <- TD_POOL_SCORED_sf %>%
-    st_drop_geometry() %>%
-    select(starts_with("FIRE_MONTH_")) %>%
-    mutate(across(everything(), as.numeric))
-  fire_months_matrix <- as.matrix(fire_cols)
-  fire_years <- as.numeric(str_extract(colnames(fire_cols), "\\d{4}"))
-  n <- nrow(fire_months_matrix)
-  # Mask out invalid months (not 1–12)
-  valid_mask <- fire_months_matrix >= 1 & fire_months_matrix <= 12
-  valid_fire_months <- ifelse(valid_mask, fire_months_matrix, NA)
-  # Compute most recent burn per row using matrix indexing
+  # Drop geometry and convert to data.table
+  DT <- as.data.table(st_drop_geometry(TD_POOL_SCORED_sf))
+  n <- nrow(DT)
+  
+  # Extract fire month columns
+  fire_cols <- grep("^FIRE_MONTH_", names(DT), value = TRUE)
+  fire_years <- as.integer(str_extract(fire_cols, "\\d{4}"))
+  fire_matrix <- as.matrix(DT[, ..fire_cols])
+  
+  # Valid fire months only (1–12)
+  valid_mask <- fire_matrix >= 1 & fire_matrix <= 12
+  valid_fire_months <- ifelse(valid_mask, fire_matrix, NA)
+  
+  # Most recent burn (fast max.col method)
   most_recent_idx <- max.col(!is.na(valid_fire_months), ties.method = "last")
   has_burn <- rowSums(!is.na(valid_fire_months)) > 0
-  # Preallocate and fill most recent burn dates
-  most_recent_burn <- rep(NA, n)
-  most_recent_burn[has_burn] <- as.Date(sprintf(
+  
+  # Build most recent burn dates
+  most_recent_burn <- rep(NA_Date_, n)
+  burn_rows <- which(has_burn)
+  burn_cols <- most_recent_idx[burn_rows]
+  most_recent_burn[burn_rows] <- as.Date(sprintf(
     "%04d-%02d-01",
-    fire_years[most_recent_idx[has_burn]],
-    valid_fire_months[cbind(which(has_burn), most_recent_idx[has_burn])]
+    fire_years[burn_cols],
+    valid_fire_months[cbind(burn_rows, burn_cols)]
   ))
-  # Calculate fire indices
+  
+  # Compute fire indices as months since start_year
   fire_indices <- sweep(valid_fire_months, 2, (fire_years - start_year) * 12, `+`)
-  # Mean fire return interval (vectorized alternative to complex apply)
-  fire_intervals <- lapply(1:n, function(i) {
-    months <- valid_fire_months[i, ]
-    idxs <- which(!is.na(months))
+  
+  # Compute fire return intervals — vectorized version
+  get_intervals <- function(row, years, months) {
+    idxs <- which(!is.na(row))
     if (length(idxs) > 1) {
-      dates <- as.Date(sprintf("%04d-%02d-01", fire_years[idxs], months[idxs]))
+      dates <- as.Date(sprintf("%04d-%02d-01", years[idxs], row[idxs]))
       dates <- sort(dates)
-      return(diff(as.numeric(format(dates, "%Y")) * 12 + as.numeric(format(dates, "%m"))))
-    } else {
-      return(NA)
+      diffs <- diff(year(dates) * 12 + month(dates))
+      return(diffs)
     }
-  })
-  fire_return_interval <- vapply(fire_intervals, function(x) {
-    if (is.numeric(x)) mean(x, na.rm = TRUE) else NA_real_
-  }, numeric(1))
-  # Vectorized collection date processing
-  collection_date <- dmy(TD_POOL_SCORED_sf$COLLECTION_DATE)
+    return(NA_real_)
+  }
+  
+  # Faster apply-like loop over rows
+  fire_intervals <- vector("list", n)
+  fire_return_mean <- numeric(n)
+  for (i in seq_len(n)) {
+    ints <- get_intervals(valid_fire_months[i, ], fire_years, valid_fire_months[i, ])
+    fire_intervals[[i]] <- ints
+    fire_return_mean[i] <- if (is.numeric(ints)) mean(ints, na.rm = TRUE) else NA_real_
+  }
+  
+  # Compute collection dates and indices
+  collection_date <- dmy(DT$COLLECTION_DATE)
   collection_index <- (year(collection_date) - start_year) * 12 + month(collection_date)
-  # Burns post collection: count fire indices greater than collection index
-  burns_after_collection <- rowSums(sweep(fire_indices, 1, collection_index, FUN = `>`) & !is.na(fire_indices), na.rm = TRUE)
-  # Final mutation
-  TD_POOL_SCORED_sf <- TD_POOL_SCORED_sf %>%
-    mutate(
-      BURNS_1987_2024 = rowSums(!is.na(valid_fire_months), na.rm = TRUE),
-      fire_intervals = fire_intervals,
-      MEAN_FIRE_RETURN_INTERVAL = fire_return_interval,
-      collection_date = collection_date,
-      collection_index = collection_index,
-      BURNS_POST_COLLECTION = burns_after_collection,
-      MOST_RECENT_BURN = as.Date(most_recent_burn, origin = "1970-01-01"),
-      MIN_FIRE_INTERVAL = as.numeric(str_extract(FIRE_GUIDELINES, "(?<=INTERVAL_MIN: )\\d+"))
-    )
-  return(TD_POOL_SCORED_sf)
-}
-
-################################################################################################################################################################
-
-# Improved calculation of fire disturbance flags with era windows
-calculate_fd_flags <- function(TD_POOL_SCORED_sf, fixed_dates) {
-  # Extract collection info
-  collection_date <- lubridate::dmy(TD_POOL_SCORED_sf$COLLECTION_DATE)
-  min_fire_interval_months <- TD_POOL_SCORED_sf$MIN_FIRE_INTERVAL * 12
-  n <- nrow(TD_POOL_SCORED_sf)
   
-  # Extract fire matrix and years
-  fire_cols <- TD_POOL_SCORED_sf %>%
-    sf::st_drop_geometry() %>%
-    dplyr::select(dplyr::starts_with("FIRE_MONTH_")) %>%
-    dplyr::mutate(dplyr::across(dplyr::everything(), as.numeric))
+  # Burns after collection
+  burns_post_collection <- rowSums(
+    sweep(fire_indices, 1, collection_index, FUN = `>`) & !is.na(fire_indices),
+    na.rm = TRUE
+  )
   
-  fire_months_matrix <- as.matrix(fire_cols)
-  fire_years <- as.numeric(stringr::str_extract(colnames(fire_cols), "\\d{4}"))
+  # Extract MIN_FIRE_INTERVAL from FIRE_GUIDELINES
+  min_fire_interval <- as.numeric(str_extract(DT$FIRE_GUIDELINES, "(?<=INTERVAL_MIN: )\\d+"))
   
-  # Build matrix of burn dates safely
-  burn_dates_matrix <- matrix(as.Date(NA), nrow = n, ncol = length(fire_years))
-  for (j in seq_along(fire_years)) {
-    month_vec <- fire_months_matrix[, j]
-    valid <- !is.na(month_vec) & month_vec >= 1 & month_vec <= 12
-    year_vec <- rep(fire_years[j], n)
-    burn_dates <- rep(as.Date(NA), n)
-    burn_dates[valid] <- as.Date(sprintf("%04d-%02d-01", year_vec[valid], month_vec[valid]))
-    burn_dates_matrix[, j] <- burn_dates
-  }
+  # Add results to data.table
+  DT[, `:=`(
+    BURNS_1987_2024 = rowSums(!is.na(valid_fire_months)),
+    fire_intervals = fire_intervals,
+    MEAN_FIRE_RETURN_INTERVAL = fire_return_mean,
+    collection_date = collection_date,
+    collection_index = collection_index,
+    BURNS_POST_COLLECTION = burns_post_collection,
+    MOST_RECENT_BURN = most_recent_burn,
+    MIN_FIRE_INTERVAL = min_fire_interval
+  )]
   
-  # Preallocate result matrices
-  FD_FLAGS <- matrix(NA_character_, nrow = n, ncol = length(fixed_dates))
-  FD_3Y <- matrix("Unburnt in assessment period or three years prior", nrow = n, ncol = length(fixed_dates))
-  
-  for (j in seq_along(fixed_dates)) {
-    fixed_date <- fixed_dates[j]
-    fixed_year <- lubridate::year(fixed_date)
-    
-    # Find all fires between collection and fixed date
-    burned_post_collection <- apply(burn_dates_matrix, 1, function(dates) {
-      any(!is.na(dates) & dates > collection_date & dates <= fixed_date)
-    })
-    
-    # Most recent fire between collection and fixed date
-    most_recent_burn <- as.Date(apply(burn_dates_matrix, 1, function(dates) {
-      valid_dates <- dates[!is.na(dates) & dates > collection_date & dates <= fixed_date]
-      if (length(valid_dates) == 0) return(NA)
-      max(valid_dates)
-    }))
-    
-    # Time since most recent fire (in months)
-    time_to_fixed <- ifelse(
-      !is.na(most_recent_burn),
-      (lubridate::year(fixed_date) - lubridate::year(most_recent_burn)) * 12 +
-        (lubridate::month(fixed_date) - lubridate::month(most_recent_burn)),
-      NA
-    )
-    
-    # Assign flags
-    recovered <- burned_post_collection & !is.na(time_to_fixed) & (time_to_fixed > min_fire_interval_months)
-    recovering <- burned_post_collection & !is.na(time_to_fixed) & (time_to_fixed <= min_fire_interval_months)
-    unburnt <- !burned_post_collection  # no fire after collection and before fixed date
-    
-    FD_FLAGS[recovered, j] <- "Recovered"
-    FD_FLAGS[recovering, j] <- "Recovering"
-    FD_FLAGS[unburnt, j] <- "Unburnt"
-    
-    # Burnt in fixed year or 3 years prior
-    window_start <- as.Date(paste0(fixed_year - 3, "-01-01"))
-    window_end <- as.Date(paste0(fixed_year, "-12-31"))
-    in_window <- apply(burn_dates_matrix, 1, function(dates) {
-      any(!is.na(dates) & dates >= window_start & dates <= window_end)
-    })
-    FD_3Y[in_window, j] <- "Burnt in assessment period or three years prior"
-  }
-  
-  # Label columns
-  colnames(FD_FLAGS) <- paste0("FD_FLAG_", lubridate::year(fixed_dates))
-  colnames(FD_3Y) <- paste0("FD_", lubridate::year(fixed_dates), "_3Y")
-  
-  # Bind to original
-  TD_POOL_SCORED_sf <- TD_POOL_SCORED_sf %>%
-    dplyr::mutate(collection_date = collection_date) %>%
-    dplyr::bind_cols(as_tibble(FD_FLAGS)) %>%
-    dplyr::bind_cols(as_tibble(FD_3Y))
-  
+  # Restore geometry and return
+  TD_POOL_SCORED_sf <- st_set_geometry(as.data.frame(DT), st_geometry(TD_POOL_SCORED_sf))
   return(TD_POOL_SCORED_sf)
 }
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# calculate_fd_flags <- function(TD_POOL_SCORED_sf, fixed_dates) {
-#   # Extract collection info
-#   collection_date <- lubridate::dmy(TD_POOL_SCORED_sf$COLLECTION_DATE)
-#   min_fire_interval_months <- TD_POOL_SCORED_sf$MIN_FIRE_INTERVAL * 12
-#   n <- nrow(TD_POOL_SCORED_sf)
-#   # Extract fire matrix and years
-#   fire_cols <- TD_POOL_SCORED_sf %>%
-#     sf::st_drop_geometry() %>%
-#     dplyr::select(starts_with("FIRE_MONTH_")) %>%
-#     dplyr::mutate(dplyr::across(everything(), as.numeric))  # Force numeric now to prevent sprintf issues
-#   
-#   fire_months_matrix <- as.matrix(fire_cols)
-#   fire_years <- as.numeric(stringr::str_extract(colnames(fire_cols), "\\d{4}"))
-#   # Build matrix of burn dates safely, only valid months 1-12
-#   burn_dates_matrix <- matrix(as.Date(NA), nrow = n, ncol = length(fire_years))
-#   for (j in seq_along(fire_years)) {
-#     month_vec <- fire_months_matrix[, j]
-#     valid <- !is.na(month_vec) & month_vec >= 1 & month_vec <= 12
-#     
-#     year_vec <- rep(fire_years[j], n)
-#     burn_dates <- rep(as.Date(NA), n)
-#     burn_dates[valid] <- as.Date(sprintf("%04d-%02d-01", year_vec[valid], month_vec[valid]))
-#     burn_dates_matrix[, j] <- burn_dates
-#   }
-#   # Preallocate result matrices
-#   FD_FLAGS <- matrix("Unburnt", nrow = n, ncol = length(fixed_dates))
-#   FD_3Y <- matrix("Unburnt in assessment period or three years prior", nrow = n, ncol = length(fixed_dates))
-#   for (j in seq_along(fixed_dates)) {
-#     fixed_date <- fixed_dates[j]
-#     fixed_year <- lubridate::year(fixed_date)
-#     # Most recent fire on or before the fixed date, force Date output
-#     most_recent_burn <- as.Date(apply(burn_dates_matrix, 1, function(dates) {
-#       dates <- dates[!is.na(dates) & dates <= fixed_date]
-#       if (length(dates) == 0) return(NA)
-#       max(dates)
-#     }))
-#     # Calculate time difference in months between fire and fixed date
-#     time_to_fixed <- ifelse(
-#       !is.na(most_recent_burn),
-#       (lubridate::year(fixed_date) - lubridate::year(most_recent_burn)) * 12 + 
-#         (lubridate::month(fixed_date) - lubridate::month(most_recent_burn)),
-#       NA
-#     )
-#     fire_after_collection <- !is.na(most_recent_burn) & (most_recent_burn > collection_date)
-#     recovered <- fire_after_collection & !is.na(time_to_fixed) & (time_to_fixed > min_fire_interval_months)
-#     recovering <- fire_after_collection & !is.na(time_to_fixed) & (time_to_fixed <= min_fire_interval_months)
-#     FD_FLAGS[recovered, j] <- "Recovered"
-#     FD_FLAGS[recovering, j] <- "Recovering"
-#     # 3-year burn window
-#     window_start <- as.Date(paste0(fixed_year - 3, "-01-01"))
-#     window_end <- as.Date(paste0(fixed_year, "-12-31"))
-#     
-#     in_window <- apply(burn_dates_matrix, 1, function(dates) {
-#       any(!is.na(dates) & dates >= window_start & dates <= window_end)
-#     })
-#     
-#     FD_3Y[in_window, j] <- "Burnt in assessment period or three years prior"
-#   }
-#   # Add column names
-#   colnames(FD_FLAGS) <- paste0("FD_FLAG_", lubridate::year(fixed_dates))
-#   colnames(FD_3Y) <- paste0("FD_", lubridate::year(fixed_dates), "_3Y")
-#   # Combine with original data
-#   TD_POOL_SCORED_sf <- TD_POOL_SCORED_sf %>%
-#     dplyr::mutate(collection_date = collection_date) %>%
-#     dplyr::bind_cols(as_tibble(FD_FLAGS)) %>%
-#     dplyr::bind_cols(as_tibble(FD_3Y))
-#   
-#   return(TD_POOL_SCORED_sf)
-# }
-
-################################################################################################################################################################
 # Function to calculate fire disturbance flags using data.table for efficiency
 calculate_fd_flags <- function(TD_POOL_SCORED_sf, fixed_dates) {
   # Convert to data.table
@@ -976,7 +813,7 @@ write.csv(TD_POOL_SCORED_sf, file.path(int_dir, "TD_POOL_SCORED_fire_sampled_met
 
 # Drop intermediate variables and clean up (optional) 
 TD_POOL_SCORED_sf <- TD_POOL_SCORED_sf %>%
-  select(-FIRE_GUIDELINES, -fire_intervals, -collection_date, -collection_index, -all_of(firemonth_cols))
+  select(-FIRE_GUIDELINES, -MIN_FIRE_INTERVAL, -collection_date, -collection_index, -all_of(firemonth_cols))
 rm(col_names, firemonth_cols, fixed_dates, reordered_cols, sorted_firemonth_cols, process_fire_metrics, calculate_fd_flags)
 gc()
 
