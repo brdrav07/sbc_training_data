@@ -196,13 +196,17 @@ out_dir      <- file.path(project_root, "project_data", "outputs")
 # TODO: Develop workflow to assign RE to sites where this data is missing or above doesn't work based on spatial intersect, landzone filtering and then match composition to remaining pool of REs
 
 # FROM training_data_deficit_v1.0 -> calculates site thresholds based on latest version of RE mapping
-# 3.1) Import data
+#   _____    ____        _______ __ __                 __         ___ __        __ __        __   __                      __           __     __ 
+#  |  |  |  |_   |      |     __|__|  |_.-----.    .--|  |.-----.'  _|__|.----.|__|  |_     |  |_|  |--.----.-----.-----.|  |--.-----.|  |.--|  |
+#  |__    |_ _|  |_     |__     |  |   _|  -__|    |  _  ||  -__|   _|  ||  __||  |   _|    |   _|     |   _|  -__|__ --||     |  _  ||  ||  _  |
+#     |__|__|______|    |_______|__|____|_____|    |_____||_____|__| |__||____||__|____|    |____|__|__|__| |_____|_____||__|__|_____||__||_____|
+# 4.1.1) Import data
 # TODO: Injest and process raw gdb and calculate area in R to replace manual QGIS step - read then write as 2d gpkg to be imported?
 preclear_SBC <- read.csv(file.path(tab_in_dir, "PC_RE_v14_3577_aream2_SBCfiltered.csv")) # done in QGIS due to Z dimension in RE mapping? Layer from gdb, exported as gpkg 3577, then $area - area_m2, export csv
 redd <- read.csv(file.path(tab_in_dir, "REDD_v13.1_2024.csv"))
 re <- read.csv(file.path(tab_in_dir, "regional_ecosystem_2024.csv"))
 
-# 3.2) Calculate preclear hectare summary and number of reference sites required
+# 4.1.2) Calculate preclear hectare summary and number of reference sites required
 preclear_SBC_summary <- preclear_SBC %>%
   group_by(RE1) %>%
   summarise(
@@ -227,7 +231,7 @@ preclear_SBC_summary <- preclear_SBC %>%
   ) %>%
   select(-CUMULATIVE_AREA_M2)
 
-# 3.3) Join in relevant columns from REDD and RE
+# 4.1.3) Join in relevant columns from REDD and RE
 preclear_SBC_summary <- preclear_SBC_summary %>%
   left_join(
     re %>% select(
@@ -245,10 +249,12 @@ preclear_SBC_summary <- preclear_SBC_summary %>%
     by = c("RE1" = "NAME")
   )
 
-# 3.4) Write and clean up
+# 4.1.4) Write and clean up
 # write.csv(preclear_summary, file = file.path(int_dir, "SBC_td_deficit_REv14.csv"), row.names = FALSE)
 rm(preclear_SBC)
 gc()
+
+
 
 
 ##### 5) Site scoring #####  
@@ -286,7 +292,6 @@ gc()
 #  |  __  |__ _|  |_      _|   |_ |        |  _  |  _  |   _||   _|    |  _  ||  _  ||   _|  _  |
 #  |______|__|______|    |_______||__|__|__|   __|_____|__|  |____|    |_____||___._||____|___._|
 #                                          |__|                                                  
-
 TD_POOL_SCORED <- read.csv(file.path(train_in_dir,"REv13_POI_TEST.csv")) # Use this large dummy POI dataset for testing
 
 #   ______    ______      _______         __           __                                                           __              
@@ -583,18 +588,13 @@ for(tif_file in tif_files) {
   # Extract year from filename (assuming format like "firescar_2000.tif")
   year <- gsub(".*?(\\d{4}).*", "\\1", basename(tif_file))
   col_name <- paste0("FIRE_MONTH_", year)
-  
   message("Processing: ", basename(tif_file), " (", col_name, ")")
-  
   # Load raster
   r <- rast(tif_file)
-  
   # Initialize result vector
   sampled_values <- rep(NA, nrow(TD_POOL_SCORED_vect))
-  
   # Process in chunks
   n_chunks <- ceiling(nrow(TD_POOL_SCORED_vect) / chunk_size)
-  
   for(i in seq_len(n_chunks)) {
     start_idx <- (i - 1) * chunk_size + 1
     end_idx <- min(i * chunk_size, nrow(TD_POOL_SCORED_vect))
@@ -607,15 +607,12 @@ for(tif_file in tif_files) {
     
     message(sprintf("  Chunk %d/%d processed", i, n_chunks))
   }
-  
   # Add results to TD_POOL_SCORED_sf
   TD_POOL_SCORED_sf[[col_name]] <- sampled_values
-  
   # Clean up
   rm(r, sampled_values)
   gc()
 }
-
 rm(tif_file, tif_files)
 gc()
 
@@ -642,20 +639,16 @@ process_fire_metrics <- function(TD_POOL_SCORED_sf, start_year = 1987) {
   # Drop geometry and convert to data.table
   DT <- as.data.table(st_drop_geometry(TD_POOL_SCORED_sf))
   n <- nrow(DT)
-  
   # Extract fire month columns
   fire_cols <- grep("^FIRE_MONTH_", names(DT), value = TRUE)
   fire_years <- as.integer(str_extract(fire_cols, "\\d{4}"))
   fire_matrix <- as.matrix(DT[, ..fire_cols])
-  
   # Valid fire months only (1–12)
   valid_mask <- fire_matrix >= 1 & fire_matrix <= 12
   valid_fire_months <- ifelse(valid_mask, fire_matrix, NA)
-  
   # Most recent burn (fast max.col method)
   most_recent_idx <- max.col(!is.na(valid_fire_months), ties.method = "last")
   has_burn <- rowSums(!is.na(valid_fire_months)) > 0
-  
   # Build most recent burn dates
   most_recent_burn <- rep(NA_Date_, n)
   burn_rows <- which(has_burn)
@@ -665,10 +658,8 @@ process_fire_metrics <- function(TD_POOL_SCORED_sf, start_year = 1987) {
     fire_years[burn_cols],
     valid_fire_months[cbind(burn_rows, burn_cols)]
   ))
-  
   # Compute fire indices as months since start_year
   fire_indices <- sweep(valid_fire_months, 2, (fire_years - start_year) * 12, `+`)
-  
   # Compute fire return intervals — vectorized version
   get_intervals <- function(row, years, months) {
     idxs <- which(!is.na(row))
@@ -680,7 +671,6 @@ process_fire_metrics <- function(TD_POOL_SCORED_sf, start_year = 1987) {
     }
     return(NA_real_)
   }
-  
   # Faster apply-like loop over rows
   fire_intervals <- vector("list", n)
   fire_return_mean <- numeric(n)
@@ -689,20 +679,16 @@ process_fire_metrics <- function(TD_POOL_SCORED_sf, start_year = 1987) {
     fire_intervals[[i]] <- ints
     fire_return_mean[i] <- if (is.numeric(ints)) mean(ints, na.rm = TRUE) else NA_real_
   }
-  
   # Compute collection dates and indices
   collection_date <- dmy(DT$COLLECTION_DATE)
   collection_index <- (year(collection_date) - start_year) * 12 + month(collection_date)
-  
   # Burns after collection
   burns_post_collection <- rowSums(
     sweep(fire_indices, 1, collection_index, FUN = `>`) & !is.na(fire_indices),
     na.rm = TRUE
   )
-  
   # Extract MIN_FIRE_INTERVAL from FIRE_GUIDELINES
   min_fire_interval <- as.numeric(str_extract(DT$FIRE_GUIDELINES, "(?<=INTERVAL_MIN: )\\d+"))
-  
   # Add results to data.table
   DT[, `:=`(
     BURNS_1987_2024 = rowSums(!is.na(valid_fire_months)),
@@ -714,14 +700,10 @@ process_fire_metrics <- function(TD_POOL_SCORED_sf, start_year = 1987) {
     MOST_RECENT_BURN = most_recent_burn,
     MIN_FIRE_INTERVAL = min_fire_interval
   )]
-  
   # Restore geometry and return
   TD_POOL_SCORED_sf <- st_set_geometry(as.data.frame(DT), st_geometry(TD_POOL_SCORED_sf))
   return(TD_POOL_SCORED_sf)
 }
-
-
-
 
 # Function to calculate fire disturbance flags using data.table for efficiency
 calculate_fd_flags <- function(TD_POOL_SCORED_sf, fixed_dates) {
@@ -730,17 +712,15 @@ calculate_fd_flags <- function(TD_POOL_SCORED_sf, fixed_dates) {
   TD[, collection_date := dmy(COLLECTION_DATE)]
   TD[, MIN_FIRE_INTERVAL_MONTHS := MIN_FIRE_INTERVAL * 12]
   n <- nrow(TD)
-  
   # Extract FIRE columns and their years
   fire_cols <- grep("^FIRE_MONTH_", names(TD), value = TRUE)
   fire_years <- as.integer(str_extract(fire_cols, "\\d{4}"))
   fire_matrix <- as.matrix(TD[, ..fire_cols])
-  
   # Generate burn date matrix (fast vectorized)
   fire_months_vec <- as.integer(fire_matrix)
   fire_years_mat <- matrix(rep(fire_years, each = n), nrow = n)
   valid <- !is.na(fire_months_vec) & fire_months_vec >= 1 & fire_months_vec <= 12
-  
+  # Vectorise burn dates
   burn_dates_vec <- rep(NA_Date_, length(fire_months_vec))
   burn_dates_vec[valid] <- as.Date(sprintf(
     "%04d-%02d-01",
@@ -748,56 +728,46 @@ calculate_fd_flags <- function(TD_POOL_SCORED_sf, fixed_dates) {
     fire_months_vec[valid]
   ))
   burn_dates_matrix <- matrix(burn_dates_vec, nrow = n)
-  
   # Preallocate result matrices
   FD_FLAGS <- matrix(NA_character_, nrow = n, ncol = length(fixed_dates))
   FD_3Y <- matrix("Unburnt in assessment period or three years prior", nrow = n, ncol = length(fixed_dates))
-  
   # Loop through fixed_dates efficiently
   for (j in seq_along(fixed_dates)) {
     fixed_date <- fixed_dates[j]
     fixed_year <- year(fixed_date)
-    
     # Logical matrix for valid burns between collection and fixed_date
     in_range <- sweep(burn_dates_matrix, 1, TD$collection_date, `>`) &
       burn_dates_matrix <= fixed_date & !is.na(burn_dates_matrix)
-    
     # Determine if any burn occurred
     burned_post_collection <- rowSums(in_range) > 0
-    
     # Most recent burn dates vectorized: use `pmax` row-wise
     burn_tmp <- burn_dates_matrix
     burn_tmp[!in_range] <- as.Date(NA)
     most_recent_burn <- do.call(pmax, c(as.data.frame(burn_tmp), na.rm = TRUE))
-    
     # Time since most recent fire
     time_to_fixed <- as.integer((year(fixed_date) - year(most_recent_burn)) * 12 +
                                   (month(fixed_date) - month(most_recent_burn)))
     time_to_fixed[is.na(most_recent_burn)] <- NA
-    
     # Recovery status flags
     recovered  <- burned_post_collection & !is.na(time_to_fixed) & time_to_fixed > TD$MIN_FIRE_INTERVAL_MONTHS
     recovering <- burned_post_collection & !is.na(time_to_fixed) & time_to_fixed <= TD$MIN_FIRE_INTERVAL_MONTHS
     unburnt    <- !burned_post_collection
-    
+    # Set FD flags
     FD_FLAGS[recovered, j]  <- "Recovered"
     FD_FLAGS[recovering, j] <- "Recovering"
     FD_FLAGS[unburnt, j]    <- "Unburnt"
-    
     # 3-year window check (vectorized)
     window_start <- as.Date(sprintf("%d-01-01", fixed_year - 3))
     window_end   <- as.Date(sprintf("%d-12-31", fixed_year))
     in_window <- rowSums(burn_dates_matrix >= window_start & burn_dates_matrix <= window_end, na.rm = TRUE) > 0
     FD_3Y[in_window, j] <- "Burnt in assessment period or three years prior"
   }
-  
   # Attach results
   colnames(FD_FLAGS) <- paste0("FD_FLAG_", year(fixed_dates))
   colnames(FD_3Y) <- paste0("FD_", year(fixed_dates), "_3Y")
-  
+  # Bind results
   TD_result <- cbind(TD, FD_FLAGS, FD_3Y)
   TD_POOL_SCORED_sf <- st_set_geometry(as.data.frame(TD_result), st_geometry(TD_POOL_SCORED_sf))
-  
   return(TD_POOL_SCORED_sf)
 }
 
@@ -806,7 +776,7 @@ system.time({TD_POOL_SCORED_sf <- process_fire_metrics(TD_POOL_SCORED_sf)})
 fixed_dates <- as.Date(c("2017-01-01", "2019-01-01", "2021-01-01", "2023-01-01"))
 system.time({TD_POOL_SCORED_sf <- calculate_fd_flags(TD_POOL_SCORED_sf, fixed_dates)})
 
-# Save intermediate fire sampled sites
+# 6.3.4.4) Save intermediate fire sampled sites.................................................................................................................
 TD_POOL_SCORED_sf <- TD_POOL_SCORED_sf %>%
   select(-fire_intervals)
 write.csv(TD_POOL_SCORED_sf, file.path(int_dir, "TD_POOL_SCORED_fire_sampled_metrics.csv"), row.names = FALSE)
@@ -822,10 +792,11 @@ gc()
 
 ### 6.3.5) Age Since Woody Disturbance
 # 6.3.5.1) Import woody disturbance product  ...................................................................................................................
-slats_disturbance <- terra::rast("spatial_inputs/SLATS_2023/woody_disturbance/DP_QLD_WOODY_AGE_2022_COG.tif") # time since clearing
+slats_disturbance <- terra::rast("project_data/spatial_inputs/SLATS_woody_disturbance/DP_QLD_WOODY_AGE_SINCE_DISTURBANCE_2023.tif") # time since clearing
 
 # 6.3.5.2) Sample the raster in chunks .........................................................................................................................
 # Initialize result vector
+TD_POOL_SCORED_vect <- vect(TD_POOL_SCORED_sf)
 sampled_values <- rep(NA, nrow(TD_POOL_SCORED_vect))
 
 # Process in chunks
@@ -839,7 +810,7 @@ for (i in seq_len(n_chunks)) {
 }
 
 # Add results back to your sf object
-TD_POOL_SCORED_sf$ASWD_2022 <- sampled_values
+TD_POOL_SCORED_sf$ASWD_2023 <- sampled_values
 
 # 6.3.5.3) Add in disturbance flag .............................................................................................................................
 # Initialize new columns with NA
@@ -856,10 +827,10 @@ for (i in seq_len(n_chunks)) {
     as.Date(chunk$COLLECTION_DATE, format = "%d/%m/%Y"), 
     "%Y"))
   # Identify rows to process (sampled_value between 1-32)
-  process_rows <- which(chunk$ASWD_2022 >= 1 & chunk$ASWD_2022 <= 32)
+  process_rows <- which(chunk$ASWD_2023 >= 1 & chunk$ASWD_2023 <= 33)
   if (length(process_rows) > 0) {
     # Calculate WD_YEAR only for valid rows
-    chunk$WD_YEAR[process_rows] <- 2022 - chunk$ASWD_2022[process_rows]
+    chunk$WD_YEAR[process_rows] <- 2023 - chunk$ASWD_2023[process_rows]
     # Determine WD timing for valid rows
     chunk$WD_TIMING[process_rows] <- case_when(
       chunk$WD_YEAR[process_rows] < chunk$COLLECTION_YEAR[process_rows] ~ "Before collection",
@@ -882,19 +853,72 @@ for (i in seq_len(n_chunks)) {
 }
 
 # clean up
+write.csv(TD_POOL_SCORED_sf, file.path(int_dir, "TD_POOL_SCORED_WD_sampled_metrics.csv"), row.names = FALSE)
 TD_POOL_SCORED_sf <- TD_POOL_SCORED_sf %>%
   select(-COLLECTION_YEAR, -WD_YEAR)
 rm(slats_disturbance, i, end_idx, process_rows, start_idx, sampled_values)
+gc()
 
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
 # ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
 
 ### 2.5) SLATS Change of Woody Vegetation
 # 2.5.1) Import SLATS gdb series  ..............................................................................................................................
+slats_dir <- "project_data/spatial_inputs/SLATS_clearing"
+slats_folders <- list.dirs(slats_dir, full.names = TRUE, recursive = FALSE)
 
 
 # 2.5.2) Sample the gdb in chunks ..............................................................................................................................
+# Add a unique ID column to rejoin results
+TD_POOL_SCORED_sf$JOIN_ID <- seq_len(nrow(TD_POOL_SCORED_sf))
 
+# Loop over each SLATS folder
+for (folder in slats_folders) {
+  
+  # Get .gdb path
+  gdb_path <- list.files(folder, pattern = "\\.gdb$", full.names = TRUE)[1]
+  year_id <- basename(folder)  # e.g. "SLATS_0001"
+  
+  if (!is.na(gdb_path)) {
+    
+    cat("Processing:", year_id, "\n")
+    
+    # Read SLATS vector layer
+    slats_layer <- st_read(gdb_path, quiet = TRUE) %>%
+      st_transform(st_crs(TD_POOL_SCORED_sf))
+    
+    # --- Handle inconsistent column names: 'descr' vs 'description' ---
+    if ("descr" %in% names(slats_layer)) {
+      slats_layer <- slats_layer %>% dplyr::rename(clearing_descr = descr)
+    } else if ("description" %in% names(slats_layer)) {
+      slats_layer <- slats_layer %>% dplyr::rename(clearing_descr = description)
+    } else {
+      warning(paste0("Skipping ", year_id, " — no 'descr' or 'description' column found."))
+      next  # Skip this year if neither column exists
+    }
+    
+    # Create empty character vector to hold sampled descriptions
+    sampled_descr <- rep(NA_character_, nrow(TD_POOL_SCORED_sf))
+    
+    # Loop over chunks
+    for (i in seq_len(n_chunks)) {
+      idx_start <- (i - 1) * chunk_size + 1
+      idx_end <- min(i * chunk_size, nrow(TD_POOL_SCORED_sf))
+      
+      chunk <- TD_POOL_SCORED_sf[idx_start:idx_end, ]
+      
+      # Spatial join (get 'clearing_descr' text column)
+      joined <- st_join(chunk, slats_layer[, "clearing_descr"], join = st_intersects, left = TRUE)
+      
+      # Fill values
+      sampled_descr[idx_start:idx_end] <- joined$clearing_descr
+    }
+    
+    # Add column (as character)
+    col_name <- paste0(year_id, "_clearing")
+    TD_POOL_SCORED_sf[[col_name]] <- sampled_descr
+  }
+}
 
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
 # ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
