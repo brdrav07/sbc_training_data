@@ -578,46 +578,44 @@ gc()
 
 ### 6.3.4) Burn scars
 # 6.3.4.1) Scrape and import burn scar rasters .................................................................................................................
-
-# Get list of all .tif files in Fire_scars folder
-tif_files <- list.files(path = "project_data/spatial_inputs/burn_scars", pattern = "\\.tif$", full.names = TRUE, recursive = TRUE)
-
-# 6.3.4.2) Sample the raster in chunks .........................................................................................................................
-# Process each raster file
-for(tif_file in tif_files) {
-  # Extract year from filename (assuming format like "firescar_2000.tif")
-  year <- gsub(".*?(\\d{4}).*", "\\1", basename(tif_file))
-  col_name <- paste0("FIRE_MONTH_", year)
-  message("Processing: ", basename(tif_file), " (", col_name, ")")
-  # Load raster
-  r <- rast(tif_file)
-  # Initialize result vector
-  sampled_values <- rep(NA, nrow(TD_POOL_SCORED_vect))
-  # Process in chunks
-  n_chunks <- ceiling(nrow(TD_POOL_SCORED_vect) / chunk_size)
-  for(i in seq_len(n_chunks)) {
-    start_idx <- (i - 1) * chunk_size + 1
-    end_idx <- min(i * chunk_size, nrow(TD_POOL_SCORED_vect))
-    
-    chunk <- TD_POOL_SCORED_vect[start_idx:end_idx]
-    sampled_values[start_idx:end_idx] <- terra::extract(r, chunk)[, 2]
-    
-    rm(chunk)
-    gc()
-    
-    message(sprintf("  Chunk %d/%d processed", i, n_chunks))
-  }
-  # Add results to TD_POOL_SCORED_sf
-  TD_POOL_SCORED_sf[[col_name]] <- sampled_values
-  # Clean up
-  rm(r, sampled_values)
-  gc()
-}
-rm(tif_file, tif_files)
-gc()
-
-# Save intermediate fire sampled sites
-st_write(TD_POOL_SCORED_sf, file.path(int_dir, "TD_POOL_SCORED_fire_sampled.gpkg"), quiet = TRUE, delete_dsn = TRUE)
+# tif_files <- list.files(path = "project_data/spatial_inputs/burn_scars", pattern = "\\.tif$", full.names = TRUE, recursive = TRUE)
+# 
+# # 6.3.4.2) Sample the raster in chunks .........................................................................................................................
+# # Process each raster file
+# for(tif_file in tif_files) {
+#   # Extract year from filename (assuming format like "firescar_2000.tif")
+#   year <- gsub(".*?(\\d{4}).*", "\\1", basename(tif_file))
+#   col_name <- paste0("FIRE_MONTH_", year)
+#   message("Processing: ", basename(tif_file), " (", col_name, ")")
+#   # Load raster
+#   r <- rast(tif_file)
+#   # Initialize result vector
+#   sampled_values <- rep(NA, nrow(TD_POOL_SCORED_vect))
+#   # Process in chunks
+#   n_chunks <- ceiling(nrow(TD_POOL_SCORED_vect) / chunk_size)
+#   for(i in seq_len(n_chunks)) {
+#     start_idx <- (i - 1) * chunk_size + 1
+#     end_idx <- min(i * chunk_size, nrow(TD_POOL_SCORED_vect))
+#     
+#     chunk <- TD_POOL_SCORED_vect[start_idx:end_idx]
+#     sampled_values[start_idx:end_idx] <- terra::extract(r, chunk)[, 2]
+#     
+#     rm(chunk)
+#     gc()
+#     
+#     message(sprintf("  Chunk %d/%d processed", i, n_chunks))
+#   }
+#   # Add results to TD_POOL_SCORED_sf
+#   TD_POOL_SCORED_sf[[col_name]] <- sampled_values
+#   # Clean up
+#   rm(r, sampled_values)
+#   gc()
+# }
+# rm(tif_file, tif_files)
+# gc()
+# 
+# # Save intermediate fire sampled sites
+# st_write(TD_POOL_SCORED_sf, file.path(int_dir, "TD_POOL_SCORED_fire_sampled.gpkg"), quiet = TRUE, delete_dsn = TRUE)
 
 # 6.3.4.3) Add burn scar flag ..................................................................................................................................
 # CAN IMPORT FIRE SAMPLED TD_POOL_SCORED HERE TO SKIP PROCESSING
@@ -859,6 +857,8 @@ TD_POOL_SCORED_sf <- TD_POOL_SCORED_sf %>%
 rm(slats_disturbance, i, end_idx, process_rows, start_idx, sampled_values)
 gc()
 
+# TODO: look at efficiency improvements to function
+
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
 # ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
 
@@ -867,58 +867,76 @@ gc()
 slats_dir <- "project_data/spatial_inputs/SLATS_clearing"
 slats_folders <- list.dirs(slats_dir, full.names = TRUE, recursive = FALSE)
 
-
 # 2.5.2) Sample the gdb in chunks ..............................................................................................................................
+
+
 # Add a unique ID column to rejoin results
 TD_POOL_SCORED_sf$JOIN_ID <- seq_len(nrow(TD_POOL_SCORED_sf))
 
 # Loop over each SLATS folder
 for (folder in slats_folders) {
   
-  # Get .gdb path
-  gdb_path <- list.files(folder, pattern = "\\.gdb$", full.names = TRUE)[1]
   year_id <- basename(folder)  # e.g. "SLATS_0001"
   
+  # Try to find a .gdb or .shp in the folder
+  gdb_path <- list.files(folder, pattern = "\\.gdb$", full.names = TRUE)[1]
+  shp_path <- list.files(folder, pattern = "\\.shp$", full.names = TRUE)[1]
+  
+  # Determine which format to use
   if (!is.na(gdb_path)) {
-    
-    cat("Processing:", year_id, "\n")
-    
-    # Read SLATS vector layer
-    slats_layer <- st_read(gdb_path, quiet = TRUE) %>%
-      st_transform(st_crs(TD_POOL_SCORED_sf))
-    
-    # --- Handle inconsistent column names: 'descr' vs 'description' ---
-    if ("descr" %in% names(slats_layer)) {
-      slats_layer <- slats_layer %>% dplyr::rename(clearing_descr = descr)
-    } else if ("description" %in% names(slats_layer)) {
-      slats_layer <- slats_layer %>% dplyr::rename(clearing_descr = description)
-    } else {
-      warning(paste0("Skipping ", year_id, " — no 'descr' or 'description' column found."))
-      next  # Skip this year if neither column exists
-    }
-    
-    # Create empty character vector to hold sampled descriptions
-    sampled_descr <- rep(NA_character_, nrow(TD_POOL_SCORED_sf))
-    
-    # Loop over chunks
-    for (i in seq_len(n_chunks)) {
-      idx_start <- (i - 1) * chunk_size + 1
-      idx_end <- min(i * chunk_size, nrow(TD_POOL_SCORED_sf))
-      
-      chunk <- TD_POOL_SCORED_sf[idx_start:idx_end, ]
-      
-      # Spatial join (get 'clearing_descr' text column)
-      joined <- st_join(chunk, slats_layer[, "clearing_descr"], join = st_intersects, left = TRUE)
-      
-      # Fill values
-      sampled_descr[idx_start:idx_end] <- joined$clearing_descr
-    }
-    
-    # Add column (as character)
-    col_name <- paste0(year_id, "_clearing")
-    TD_POOL_SCORED_sf[[col_name]] <- sampled_descr
+    data_path <- gdb_path
+    use_layer <- NULL  # GDB handles internally
+  } else if (!is.na(shp_path)) {
+    data_path <- shp_path
+    use_layer <- NA    # Not needed for .shp
+  } else {
+    warning(paste0("No .gdb or .shp found in ", folder, " — skipping."))
+    next
   }
+  
+  cat("Processing:", year_id, "\n")
+  
+  # Read the SLATS layer
+  slats_layer <- st_read(data_path, quiet = TRUE) %>%
+    st_transform(st_crs(TD_POOL_SCORED_sf))
+  
+  # Handle inconsistent column names: 'descr' vs 'description'
+  if ("descr" %in% names(slats_layer)) {
+    slats_layer <- slats_layer %>% dplyr::rename(clearing_descr = descr)
+  } else if ("description" %in% names(slats_layer)) {
+    slats_layer <- slats_layer %>% dplyr::rename(clearing_descr = description)
+  } else {
+    warning(paste0("Skipping ", year_id, " — no 'descr' or 'description' column found."))
+    next
+  }
+  
+  # Create empty character vector to hold sampled descriptions
+  sampled_descr <- rep(NA_character_, nrow(TD_POOL_SCORED_sf))
+  
+  # Loop over chunks
+  for (i in seq_len(n_chunks)) {
+    idx_start <- (i - 1) * chunk_size + 1
+    idx_end <- min(i * chunk_size, nrow(TD_POOL_SCORED_sf))
+    
+    chunk <- TD_POOL_SCORED_sf[idx_start:idx_end, ]
+    
+    # Spatial join (get 'clearing_descr' text column)
+    joined <- st_join(chunk, slats_layer[, "clearing_descr"], join = st_intersects, left = TRUE)
+    
+    # Fill values
+    sampled_descr[idx_start:idx_end] <- joined$clearing_descr
+  }
+  
+  # Add column (as character)
+  col_name <- paste0(year_id, "_code")
+  TD_POOL_SCORED_sf[[col_name]] <- sampled_descr
 }
+
+
+
+# TODO: look at efficiency improvements to function
+# TODO: Generate SLATS flags based on clearing descriptions and collection date, clean up and rm intermediates
+
 
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
 # ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
