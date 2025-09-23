@@ -37,7 +37,7 @@
 
 ##### 1) Workspace setup #####
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
-# ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
+#  ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
 #               ██╗       ██╗    ██╗ ██████╗ ██████╗ ██╗  ██╗███████╗██████╗  █████╗  ██████╗███████╗    ███████╗███████╗████████╗██╗   ██╗██████╗ 
 #              ███║       ██║    ██║██╔═══██╗██╔══██╗██║ ██╔╝██╔════╝██╔══██╗██╔══██╗██╔════╝██╔════╝    ██╔════╝██╔════╝╚══██╔══╝██║   ██║██╔══██╗
 #              ╚██║       ██║ █╗ ██║██║   ██║██████╔╝█████╔╝ ███████╗██████╔╝███████║██║     █████╗      ███████╗█████╗     ██║   ██║   ██║██████╔╝
@@ -45,7 +45,7 @@
 #               ██║██╗    ╚███╔███╔╝╚██████╔╝██║  ██║██║  ██╗███████║██║     ██║  ██║╚██████╗███████╗    ███████║███████╗   ██║   ╚██████╔╝██║     
 #               ╚═╝╚═╝     ╚══╝╚══╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝  ╚═╝ ╚═════╝╚══════╝    ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝     
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
-# ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝ 
+#  ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝ 
 # 1.1) Check renv status and clean workspace (optional)
 # renv::status()
 rm(list = ls())
@@ -63,7 +63,8 @@ packages <- c(
   "jsonlite", 
   "sf", 
   "lwgeom", 
-  "terra"
+  "terra",
+  "tools"
 )
 
 installed_packages <- rownames(installed.packages())
@@ -130,7 +131,7 @@ out_dir      <- file.path(project_root, "project_data", "outputs")
 
 ##### 2) Site summaries #####
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
-# ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
+#  ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
 #                    ██████╗        ███████╗██╗████████╗███████╗    ███████╗██╗   ██╗███╗   ███╗███╗   ███╗ █████╗ ██████╗ ██╗███████╗███████╗               
 #                    ╚════██╗       ██╔════╝██║╚══██╔══╝██╔════╝    ██╔════╝██║   ██║████╗ ████║████╗ ████║██╔══██╗██╔══██╗██║██╔════╝██╔════╝               
 #                     █████╔╝       ███████╗██║   ██║   █████╗      ███████╗██║   ██║██╔████╔██║██╔████╔██║███████║██████╔╝██║█████╗  ███████╗               
@@ -138,7 +139,7 @@ out_dir      <- file.path(project_root, "project_data", "outputs")
 #                    ███████╗██╗    ███████║██║   ██║   ███████╗    ███████║╚██████╔╝██║ ╚═╝ ██║██║ ╚═╝ ██║██║  ██║██║  ██║██║███████╗███████║               
 #                    ╚══════╝╚═╝    ╚══════╝╚═╝   ╚═╝   ╚══════╝    ╚══════╝ ╚═════╝ ╚═╝     ╚═╝╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚══════╝╚══════╝               
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
-# ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
+#  ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
 
 # TODO: Pipeline in QBERD and QBEIS site summary code here, and ensure extra columns are included that include landzone, dominant floristics, composition, disturbance notes etc
 
@@ -146,7 +147,7 @@ out_dir      <- file.path(project_root, "project_data", "outputs")
 
 ##### 3) Site complier #####                                                                                                                                                           
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
-# ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
+#  ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
 #                        ██████╗        ███████╗██╗████████╗███████╗     ██████╗ ██████╗ ███╗   ███╗██████╗ ██╗██╗     ███████╗██████╗                           
 #                        ╚════██╗       ██╔════╝██║╚══██╔══╝██╔════╝    ██╔════╝██╔═══██╗████╗ ████║██╔══██╗██║██║     ██╔════╝██╔══██╗                          
 #                         █████╔╝       ███████╗██║   ██║   █████╗      ██║     ██║   ██║██╔████╔██║██████╔╝██║██║     █████╗  ██████╔╝                          
@@ -154,7 +155,7 @@ out_dir      <- file.path(project_root, "project_data", "outputs")
 #                        ██████╔╝██╗    ███████║██║   ██║   ███████╗    ╚██████╗╚██████╔╝██║ ╚═╝ ██║██║     ██║███████╗███████╗██║  ██║                          
 #                        ╚═════╝ ╚═╝    ╚══════╝╚═╝   ╚═╝   ╚══════╝     ╚═════╝ ╚═════╝ ╚═╝     ╚═╝╚═╝     ╚═╝╚══════╝╚══════╝╚═╝  ╚═╝                          
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
-# ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
+#  ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
 
 # TODO: Import all misc training data sources and merge with site summaries from QBERD and QBEIS into TD_SITE_POOL
 
@@ -181,7 +182,7 @@ out_dir      <- file.path(project_root, "project_data", "outputs")
 
 ##### 4) Regional Ecosystem Assignment #####                                                                                                                                                           
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
-# ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
+#  ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
 #                   ██╗  ██╗       ██████╗ ███████╗     █████╗ ███████╗███████╗██╗ ██████╗ ███╗   ██╗███╗   ███╗███████╗███╗   ██╗████████╗                     
 #                   ██║  ██║       ██╔══██╗██╔════╝    ██╔══██╗██╔════╝██╔════╝██║██╔════╝ ████╗  ██║████╗ ████║██╔════╝████╗  ██║╚══██╔══╝                     
 #                   ███████║       ██████╔╝█████╗      ███████║███████╗███████╗██║██║  ███╗██╔██╗ ██║██╔████╔██║█████╗  ██╔██╗ ██║   ██║                        
@@ -189,7 +190,7 @@ out_dir      <- file.path(project_root, "project_data", "outputs")
 #                        ██║██╗    ██║  ██║███████╗    ██║  ██║███████║███████║██║╚██████╔╝██║ ╚████║██║ ╚═╝ ██║███████╗██║ ╚████║   ██║                        
 #                        ╚═╝╚═╝    ╚═╝  ╚═╝╚══════╝    ╚═╝  ╚═╝╚══════╝╚══════╝╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝   ╚═╝                        
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
-# ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
+#  ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
 
 
 # TODO: Check REs from TD_SITE_POOL against latest version of Preclear RE mapping (RE1-RE5) to see if mapped and current. Use REDD and versioning to reassign
@@ -201,16 +202,23 @@ out_dir      <- file.path(project_root, "project_data", "outputs")
 #  |__    |_ _|  |_     |__     |  |   _|  -__|    |  _  ||  -__|   _|  ||  __||  |   _|    |   _|     |   _|  -__|__ --||     |  _  ||  ||  _  |
 #     |__|__|______|    |_______|__|____|_____|    |_____||_____|__| |__||____||__|____|    |____|__|__|__| |_____|_____||__|__|_____||__||_____|
 # 4.1.1) Import data
-# TODO: Injest and process raw gdb and calculate area in R to replace manual QGIS step - read then write as 2d gpkg to be imported?
+# preclear_SBC <- st_read(dsn = "project_data/spatial_inputs/RE/v14/Regional_Ecosystem_v14_alb.gdb", layer = "RE_PreClearing") %>%
+#   select("RE", "RE1", "PERCENT", "PC1", "BVG1M", "DBVG1M", "Shape_Length", "Shape_Area") %>%
+#   st_drop_geometry() %>%
+#   mutate(temp = RE1) %>%
+#   separate(temp, into = c("BR_code", "LZ_code", "VC_code"), sep = "\\.")
+# preclear_SBC <- preclear_SBC %>%
+#   filter(!is.na(LZ_code) & LZ_code != "1")
 preclear_SBC <- read.csv(file.path(tab_in_dir, "PC_RE_v14_3577_aream2_SBCfiltered.csv")) # done in QGIS due to Z dimension in RE mapping? Layer from gdb, exported as gpkg 3577, then $area - area_m2, export csv
-redd <- read.csv(file.path(tab_in_dir, "REDD_v13.1_2024.csv"))
-re <- read.csv(file.path(tab_in_dir, "regional_ecosystem_2024.csv"))
+redd <- read.csv(file.path(tab_in_dir, "REDD_v14_2025.csv"))
+re <- read.csv(file.path(tab_in_dir, "regional_ecosystem_v14_2025.csv"))
+gc()
 
 # 4.1.2) Calculate preclear hectare summary and number of reference sites required
 preclear_SBC_summary <- preclear_SBC %>%
   group_by(RE1) %>%
   summarise(
-    CUMULATIVE_AREA_M2 = sum(area_m2, na.rm = TRUE),
+    CUMULATIVE_AREA_M2 = sum(Shape_Area, na.rm = TRUE),
     CUMULATIVE_AREA_HA = CUMULATIVE_AREA_M2 / 10000
   ) %>%
   mutate(
@@ -250,7 +258,7 @@ preclear_SBC_summary <- preclear_SBC_summary %>%
   )
 
 # 4.1.4) Write and clean up
-# write.csv(preclear_summary, file = file.path(int_dir, "SBC_td_deficit_REv14.csv"), row.names = FALSE)
+# write.csv(preclear_SBC_summary, file = file.path(int_dir, "SBC_td_deficit_REv14.csv"), row.names = FALSE)
 rm(preclear_SBC)
 gc()
 
@@ -259,7 +267,7 @@ gc()
 
 ##### 5) Site scoring #####  
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
-# ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
+#  ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
 #                          ███████╗       ███████╗██╗████████╗███████╗    ███████╗ ██████╗ ██████╗ ██████╗ ██╗███╗   ██╗ ██████╗                               
 #                          ██╔════╝       ██╔════╝██║╚══██╔══╝██╔════╝    ██╔════╝██╔════╝██╔═══██╗██╔══██╗██║████╗  ██║██╔════╝                               
 #                          ███████╗       ███████╗██║   ██║   █████╗      ███████╗██║     ██║   ██║██████╔╝██║██╔██╗ ██║██║  ███╗                              
@@ -267,7 +275,7 @@ gc()
 #                          ███████║██╗    ███████║██║   ██║   ███████╗    ███████║╚██████╗╚██████╔╝██║  ██║██║██║ ╚████║╚██████╔╝                              
 #                          ╚══════╝╚═╝    ╚══════╝╚═╝   ╚═╝   ╚══════╝    ╚══════╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝                               
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
-# ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
+#  ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
 
 # TODO: Incorporate threshold and continous scoring scripts to score sites with BioCondition attributes
 # This script is dependent on QBERD, QBEIS and RAPID site summaries and scoring databricks workflows. 
@@ -278,7 +286,7 @@ gc()
 
 ##### 6) Site assessment #####  
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
-# ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
+#  ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
 #               ██████╗        ███████╗██╗████████╗███████╗     █████╗ ███████╗███████╗███████╗███████╗███████╗███╗   ███╗███████╗███╗   ██╗████████╗
 #              ██╔════╝        ██╔════╝██║╚══██╔══╝██╔════╝    ██╔══██╗██╔════╝██╔════╝██╔════╝██╔════╝██╔════╝████╗ ████║██╔════╝████╗  ██║╚══██╔══╝
 #              ███████╗        ███████╗██║   ██║   █████╗      ███████║███████╗███████╗█████╗  ███████╗███████╗██╔████╔██║█████╗  ██╔██╗ ██║   ██║   
@@ -286,13 +294,15 @@ gc()
 #              ╚██████╔╝██╗    ███████║██║   ██║   ███████╗    ██║  ██║███████║███████║███████╗███████║███████║██║ ╚═╝ ██║███████╗██║ ╚████║   ██║   
 #               ╚═════╝ ╚═╝    ╚══════╝╚═╝   ╚═╝   ╚══════╝    ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝╚══════╝╚══════╝╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝   ╚═╝   
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
-# ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝                                                                                                                                                
+#  ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝                                                                                                                                                
 #   ______    ____        _______                             __           __         __         
 #  |    __|  |_   |      |_     _|.--------.-----.-----.----.|  |_     .--|  |.---.-.|  |_.---.-.
 #  |  __  |__ _|  |_      _|   |_ |        |  _  |  _  |   _||   _|    |  _  ||  _  ||   _|  _  |
 #  |______|__|______|    |_______||__|__|__|   __|_____|__|  |____|    |_____||___._||____|___._|
 #                                          |__|                                                  
-TD_POOL_SCORED <- read.csv(file.path(train_in_dir,"REv13_POI_TEST.csv")) # Use this large dummy POI dataset for testing
+
+# TD_POOL_SCORED <- read.csv(file.path(train_in_dir,"REv13_POI_TEST.csv")) # Use this large dummy POI dataset for testing
+TD_POOL_SCORED <- read.csv(file.path(train_in_dir,"RE_PC_v14_FG_SBCfiltered.csv")) # Use this large dummy POI dataset for testing
 
 #   ______    ______      _______         __           __                                                           __              
 #  |    __|  |__    |    |_     _|.---.-.|  |--.--.--.|  |.---.-.----.    .-----.----.-----.----.-----.-----.-----.|__|.-----.-----.
@@ -319,7 +329,6 @@ TD_POOL_SCORED <- TD_POOL_SCORED %>%
 add_gda_coords <- function(df, x_col = "x_3577", y_col = "y_3577") {
   # Convert to sf
   df_sf <- st_as_sf(df, coords = c(x_col, y_col), crs = 3577)
-  
   # Extract GDA94 coords
   gda94 <- st_transform(df_sf, 4283) %>%
     mutate(
@@ -328,7 +337,6 @@ add_gda_coords <- function(df, x_col = "x_3577", y_col = "y_3577") {
     ) %>%
     st_drop_geometry() %>%
     select(x_gda94, y_gda94)
-  
   # Extract GDA2020 coords
   gda2020 <- st_transform(df_sf, 7844) %>%
     mutate(
@@ -337,13 +345,11 @@ add_gda_coords <- function(df, x_col = "x_3577", y_col = "y_3577") {
     ) %>%
     st_drop_geometry() %>%
     select(x_gda2020, y_gda2020)
-  
   # Bind new columns and relocate
   df <- df %>%
     bind_cols(gda94) %>%
     bind_cols(gda2020) %>%
     relocate(x_gda94, y_gda94, x_gda2020, y_gda2020, .after = ACCURACY)
-  
   return(df)
 }
 
@@ -355,10 +361,8 @@ rm(add_gda_coords)
 # Ensure TD_POOL_SCORED is in the same CRS as the vector data
 TD_POOL_SCORED_sf <- st_as_sf(TD_POOL_SCORED, coords = c("x_3577", "y_3577"), crs = 3577)  ### MAY HAVE TO SWAP TO 3577 
 
-# Convert to terra vect for efficient extraction
+# Convert to terra vect for efficient extraction and set chunk size (adjustable)
 TD_POOL_SCORED_vect <- vect(TD_POOL_SCORED_sf)
-
-# Set chunk size (adjustable)
 chunk_size <- 50000  
 n_chunks <- ceiling(nrow(TD_POOL_SCORED_vect) / chunk_size)
 gc()
@@ -370,252 +374,436 @@ gc()
 #                                 |__|                                 |__|                                               |_____|
 
 ### 6.3.1) Regional Ecosystem Mapping
-# 6.3.1.1) Import most recent RE gdb series  .....................................................................................................................
+# 6.3.1.1) Import most recent RE gdb series  ...................................................................................................................
+gdb_path <- "project_data/spatial_inputs/RE/v14/Regional_Ecosystem_v14_alb.gdb" # .gdb file
 
+# 6.3.1.2) Sample the gdb in chunks ............................................................................................................................
+# Select layer names and RE1 column from the .gdb and set SLATS_Albers CRS
+gdb_layers <- st_layers(gdb_path)$name
+re_layers <- grep("RE_PreClearing|RE_2006b|^RE_\\d{4}$", gdb_layers, value = TRUE)
+message("Will process layers: ", paste(re_layers, collapse = ", "))
+attribute_field <- "RE1"
 
-# 6.3.1.2) Sample the gdb in chunks ..............................................................................................................................
-
-
-# ###QCHAT SOLUTION - UNTESTED!
-# 
-# library(sf)
-# library(terra)
-# library(dplyr)
-# 
-# # Path to the .gdb file
-# gdb_path <- "path_to_your_file.gdb"
-# 
-# # List all layers in the .gdb file
-# gdb_layers <- st_layers(gdb_path)$name
-# print(gdb_layers)  # Inspect available layers
-# 
-# # Convert TD_POOL_SCORED_sf to terra vector for efficient processing
-# TD_POOL_SCORED_vect <- vect(TD_POOL_SCORED_sf)
-# 
-# # Set chunk size
-# chunk_size <- 50000
-# n_chunks <- ceiling(nrow(TD_POOL_SCORED_vect) / chunk_size)
-# 
-# # Loop through each layer in the .gdb
-# for (layer_name in gdb_layers) {
+# # Function to extract attributes from a single RE layer (with geometry fix) ===> takes days to run!
+# extract_RE_layer <- function(layer_name, pts_vect, attribute_field, chunk_size) {
 #   message("Processing layer: ", layer_name)
-#   
-#   # Load the current polygon layer
-#   polygon_layer <- st_read(gdb_path, layer = layer_name)
-#   
-#   # Skip non-polygon layers (if any)
-#   if (!inherits(polygon_layer, "sf") || !any(st_geometry_type(polygon_layer) %in% c("POLYGON", "MULTIPOLYGON"))) {
-#     message("Skipping non-polygon layer: ", layer_name)
-#     next
+#   # Read layer
+#   re_layer <- st_read(gdb_path, layer = layer_name, quiet = TRUE)
+#   # Reproject if needed
+#   if (st_crs(re_layer) != 3577) {
+#     re_layer <- st_transform(re_layer, 3577)
 #   }
-#   
-#   # Convert polygon layer to terra format
-#   polygon_vect <- vect(polygon_layer)
-#   
-#   # Initialise a list to store results for this layer
-#   results_list <- vector("list", n_chunks)
-#   
-#   # Process TD_POOL_SCORED_sf in chunks
+#   # Check and fix invalid geometries
+#   invalid_count <- sum(!st_is_valid(re_layer), na.rm = TRUE)
+#   if (invalid_count > 0) {
+#     message("  Found ", invalid_count, " invalid geometries -> fixing")
+#     fixed_geom <- lwgeom::lwgeom_make_valid(st_geometry(re_layer))
+#     nonempty   <- !st_is_empty(fixed_geom)
+#     re_layer   <- st_sf(re_layer[nonempty, , drop = FALSE], geometry = fixed_geom[nonempty])
+#   }
+#   # Convert to terra vect
+#   re_layer <- vect(re_layer)
+#   # Pre-allocate results
+#   res <- rep(NA, nrow(pts_vect))
 #   for (i in seq_len(n_chunks)) {
-#     start_idx <- (i - 1) * chunk_size + 1
-#     end_idx <- min(i * chunk_size, nrow(TD_POOL_SCORED_vect))
-#     
-#     # Extract chunk of TD_POOL_SCOREDnts
-#     chunk <- TD_POOL_SCORED_vect[start_idx:end_idx, ]
-#     
-#     # Perform spatial join (intersect TD_POOL_SCOREDnts with polygons)
-#     joined <- terra::intersect(chunk, polygon_vect)
-#     
-#     # Extract relevant attributes from the polygon layer
-#     if (!is.null(joined)) {
-#       joined_df <- as.data.frame(joined)
-#       results_list[[i]] <- joined_df
-#     }
-#     
-#     # Clean up
-#     rm(chunk, joined)
-#     gc()
-#     
-#     message(sprintf("  Chunk %d/%d processed for layer: %s", i, n_chunks, layer_name))
+#     message("  - Processing chunk ", i, " of ", n_chunks)
+#     idx <- ((i - 1) * chunk_size + 1):min(i * chunk_size, nrow(pts_vect))
+#     pts_chunk <- pts_vect[idx, ]
+#     extracted_vals <- terra::extract(re_layer[, attribute_field], pts_chunk) %>%
+#       dplyr::pull(attribute_field)
+#     res[idx] <- extracted_vals
+#     rm(pts_chunk, extracted_vals); gc()
 #   }
-#   
-#   # Combine all results for this layer into a single data frame
-#   results_df <- do.call(rbind, results_list)
-#   
-#   # Add results to TD_POOL_SCORED_sf
-#   if (!is.null(results_df) && nrow(results_df) > 0) {
-#     col_prefix <- gsub("[^a-zA-Z0-9]", "_", layer_name)  # Sanitize layer name for column prefix
-#     results_df <- results_df %>%
-#       select(-geometry)  # Remove geometry column if present
-#     colnames(results_df) <- paste0(col_prefix, "_", colnames(results_df))  # Prefix column names
-#     
-#     TD_POOL_SCORED_sf <- TD_POOL_SCORED_sf %>%
-#       left_join(results_df, by = "fid")  # Replace with your unique ID column
-#   }
-#   
-#   # Clean up after processing the layer
-#   rm(polygon_layer, polygon_vect, results_list, results_df)
-#   gc()
-#   
-#   message("Finished processing layer: ", layer_name)
+#   res
 # }
+
+################################################################################################################################################################
+# TODO: TEST THIS FUNCTION
+# Function to extract attributes from a single RE layer (with caching of repaired gpkg)
+extract_RE_layer <- function(layer_name, pts_vect, attribute_field, chunk_size) {
+  message("Processing layer: ", layer_name)
+  # Define cache path for repaired gpkg
+  gpkg_path <- file.path("project_data/spatial_inputs/RE/v14/Regional_Ecosystem_v14_3577",
+                         paste0(layer_name, ".gpkg"))
+  # Create folder if not exists
+  dir.create(dirname(gpkg_path), recursive = TRUE, showWarnings = FALSE)
+  # Check if repaired gpkg already exists
+  if (file.exists(gpkg_path)) {
+    message("  Found cached repaired file -> using: ", gpkg_path)
+    re_layer <- st_read(gpkg_path, quiet = TRUE)
+  } else {
+    message("  Reading original layer from gdb: ", layer_name)
+    re_layer <- st_read(gdb_path, layer = layer_name, quiet = TRUE)
+    # Reproject if needed
+    if (st_crs(re_layer) != 3577) {
+      re_layer <- st_transform(re_layer, 3577)
+    }
+    # Check and fix invalid geometries
+    invalid_count <- sum(!st_is_valid(re_layer), na.rm = TRUE)
+    if (invalid_count > 0) {
+      message("  Found ", invalid_count, " invalid geometries -> fixing")
+      fixed_geom <- lwgeom::lwgeom_make_valid(st_geometry(re_layer))
+      nonempty   <- !st_is_empty(fixed_geom)
+      re_layer   <- st_sf(re_layer[nonempty, , drop = FALSE], geometry = fixed_geom[nonempty])
+    }
+    # Save repaired version
+    st_write(re_layer, gpkg_path, delete_dsn = TRUE, quiet = TRUE)
+    message("  Saved repaired layer to: ", gpkg_path)
+  }
+  # Convert to terra vect
+  re_layer <- vect(re_layer)
+  # Pre-allocate results
+  res <- rep(NA, nrow(pts_vect))
+  for (i in seq_len(n_chunks)) {
+    message("  - Processing chunk ", i, " of ", n_chunks)
+    idx <- ((i - 1) * chunk_size + 1):min(i * chunk_size, nrow(pts_vect))
+    pts_chunk <- pts_vect[idx, ]
+    extracted_vals <- terra::extract(re_layer[, attribute_field], pts_chunk) %>%
+      dplyr::pull(attribute_field)
+    res[idx] <- extracted_vals
+    rm(pts_chunk, extracted_vals); gc()
+  }
+  res
+}
+
+################################################################################################################################################################
+
+
+# Time the extraction
+start_time <- Sys.time()
+
+results <- list()
+for (layer in re_layers) {
+  message("Starting extraction for layer: ", layer)
+  vals <- extract_RE_layer(layer, TD_POOL_SCORED_vect, attribute_field, chunk_size)
+  results[[layer]] <- vals
+  message("Finished extraction for layer: ", layer)
+}
+
+end_time <- Sys.time()
+message("Total extraction time: ", round(difftime(end_time, start_time, units = "mins"), 3), " minutes")
+
+# Bind results back to TD_POOL_SCORED
+results_df <- as.data.frame(results)
+TD_POOL_SCORED <- as.data.frame(TD_POOL_SCORED) %>%
+  bind_cols(results_df)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+########################################################################################################################################################
+
+# gdb_layers <- st_layers(gdb_path)$name
+# re_layers <- grep("RE_PreClearing|^RE_\\d{4}$", gdb_layers, value = TRUE)
+# message("Will process layers: ", paste(re_layers, collapse = ", "))
+# attribute_field <- "RE1"
 # 
-# # Final clean-up
-# rm(gdb_layers)
+# # Define the SLATS_Albers CRS using its Proj4 string and ensure the entire points dataset is projected to SLATS_Albers CRS once
+# slats_albers_crs <- "+proj=aea +lat_0=-28 +lon_0=145 +lat_1=-12 +lat_2=-28 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs"
+# TD_POOL_SCORED_vect_proj <- terra::project(TD_POOL_SCORED_vect, slats_albers_crs)
 # gc()
 # 
-# 
-# ################################################################################################################################################################
-# 
-# # 2.1.1) Create File Inventory
-# # List all available years
-# preclear_dirs <- dir_ls("spatial_inputs/Preclear", regexp = "Preclear_v\\d+-\\d+_\\d{4}")
-# 
-# # Extract years and paths
-# preclear_years <- tibble(
-#   path = preclear_dirs,
-#   year = str_extract(path, "\\d{4}$")
-# ) %>%
-#   arrange(desc(year))  # Process newest first (often better quality)
-# 
-# # 2.1.2) Memory-efficient processing function
-# process_preclear <- function(year_path, TD_POOL_SCOREDnts_sf) {
-#   # Read with geometry repair
-#   layer <- st_read(
-#     file.path(year_path, "data.gdb"),
-#     quiet = TRUE,
-#     stringsAsFactors = FALSE,
-#     promote_to_multi = TRUE  # Force multi-geometries
-#   ) %>% 
-#     st_cast("MULTIPOLYGON") %>%  # Convert all to supported type
-#     sf::st_make_valid() %>%  # More robust than sf::st_make_valid
-#     st_simplify(preserveTopology = TRUE, dTolerance = 0.1) %>%  # Reduce complexity
-#     select(any_of(c("re1", "dbvg1m")))
-#   
-#   # Skip if no valid geometries remain
-#   if (nrow(layer) == 0 || all(is.na(st_dimension(layer)))) return(NULL)
-#   
-#   # Spatial join with error handling
-#   result <- tryCatch({
-#     st_join(
-#       TD_POOL_SCOREDnts_sf,
-#       layer,
-#       join = st_intersects,
-#       left = TRUE,
-#       largest = TRUE
-#     ) %>%
-#       st_drop_geometry() %>%
-#       select(ends_with("re1"), ends_with("dbvg1m")) %>%
-#       rename_with(~ paste0("preclear_", .x, "_", str_extract(year_path, "\\d{4}$")))
-#   }, error = function(e) {
-#     message("Failed on ", year_path, ": ", e$message)
-#     NULL
-#   })
-#   
-#   rm(layer); gc()
-#   return(result)
+# # Function to extract attributes from a single RE layer
+# extract_RE_layer <- function(layer_name, pts_vect, attribute_field, chunk_size) {
+#   message("Processing layer: ", layer_name)
+#   # Read the RE layer from the .gdb (already in SLATS_Albers CRS)
+#   re_layer <- vect(gdb_path, layer = layer_name)
+#   # Initialise a vector to store results for all points
+#   res <- rep(NA, nrow(pts_vect))  # Pre-fill with NA to ensure alignment
+#   # Process points in chunks
+#   for (i in seq_len(n_chunks)) {
+#     message("  - Processing chunk ", i, " of ", n_chunks)
+#     # Define the row indices for the current chunk
+#     idx <- ((i - 1) * chunk_size + 1):min(i * chunk_size, nrow(pts_vect))
+#     pts_chunk <- pts_vect[idx, ]
+#     # Extract the attribute field for the current chunk
+#     extracted <- terra::extract(re_layer[, attribute_field], pts_chunk)
+#     # Align the extracted values with the original points
+#     res[idx] <- extracted[[attribute_field]]
+#     # Clean up memory
+#     rm(pts_chunk, extracted)
+#     gc()
+#   }
+#   res  # Return the aligned results
 # }
 # 
-# # Process sequentially (more reliable than parallel for problematic geometries)
-# preclear_results <- map(
-#   preclear_years$path, 
-#   ~ process_preclear(., TD_POOL_SCORED_sf),
-#   .progress = TRUE
-# ) %>% 
-#   compact() %>%
-#   reduce(left_join, by = "fid")  # Adjust 'fid' to your actual ID column
+# # Loop over RE layers and extract attributes
+# results <- list()
+# for (layer in re_layers) {
+#   message("Starting extraction for layer: ", layer)
+#   vals <- extract_RE_layer(layer, TD_POOL_SCORED_vect_proj, attribute_field, chunk_size)
+#   results[[layer]] <- vals
+#   message("Finished extraction for layer: ", layer)
+# }
 # 
-# # 2.1.3) Merge final results
-# TD_POOL_SCORED_final <- TD_POOL_SCORED_sf %>%
-#   st_drop_geometry() %>%
-#   left_join(preclear_results, by = "fid")
+# # Combine extracted results into a data frame an bind the extracted attributes back to the original points data frame
+# results_df <- as.data.frame(results)
+# TD_POOL_SCORED <- as.data.frame(TD_POOL_SCORED) %>%
+#   bind_cols(results_df)
 # 
-# # Force final cleanup
-# rm(preclear_results); gc()
+# # Save the final results to a CSV file and clean up
+# output_path <- file.path(int_dir, "TD_POOL_SCORED_with_RE_attributes.csv")
+# write.csv(TD_POOL_SCORED, output_path, row.names = FALSE)
+# message("Processing complete. Results saved to: ", output_path)
+# rm()
+# gc()
 
 
-# # Ensure TD_POOL_SCORED is in the same CRS as the vector data
-# TD_POOL_SCORED_sf <- st_as_sf(TD_POOL_SCORED, coords = c("x_gda94", "y_gda94"), crs = 4283) 
+
+# ##################################### GPKG TEST ---> FIXED 99.9999% of errors, so has to be projection related
 # 
-# # Convert geometry and make valid
-# pre_clear <- pre_clear %>%
-#   st_cast("MULTIPOLYGON") %>%  # Convert geometry type
-#   st_make_valid()  # Ensure validity
+# # 6.3.1.1) Import single RE gpkg for testing ..........................................................................................
+# gpkg_path <- "project_data/spatial_inputs/RE/v14/RE_v14_PC_3577.gpkg" # .gpkg file
+# attribute_field <- "RE1"
+# gc()
 # 
-# # Spatial join to extract attributes from 'preclear' at TD_POOL_SCORED locations
-# TD_POOL_SCORED_sampled <- st_join(TD_POOL_SCORED_sf, pre_clear, join = st_within)  # Use st_intersects if TD_POOL_SCOREDnts can be on boundaries
+# # Function to extract attributes from the gpkg
+# extract_RE_layer <- function(gpkg_path, pts_vect, attribute_field, chunk_size) {
+#   message("Processing gpkg: ", gpkg_path)
+#   # Read the RE layer from the .gpkg (already in SLATS_Albers CRS)
+#   re_layer <- vect(gpkg_path)
+#   # Initialise a vector to store results for all points
+#   res <- rep(NA, nrow(pts_vect))  
+#   n_chunks <- ceiling(nrow(pts_vect) / chunk_size)
+#   # Process points in chunks
+#   for (i in seq_len(n_chunks)) {
+#     message("  - Processing chunk ", i, " of ", n_chunks)
+#     idx <- ((i - 1) * chunk_size + 1):min(i * chunk_size, nrow(pts_vect))
+#     pts_chunk <- pts_vect[idx, ]
+#     extracted <- terra::extract(re_layer[, attribute_field], pts_chunk)
+#     res[idx] <- extracted[[attribute_field]]
+#     rm(pts_chunk, extracted)
+#     gc()
+#   }
+#   res
+# }
+# 
+# # Extract attributes directly from the single gpkg
+# vals <- extract_RE_layer(gpkg_path, TD_POOL_SCORED_vect, attribute_field, chunk_size)
+# 
+# # Combine extracted results back to the points data frame
+# TD_POOL_SCORED <- as.data.frame(TD_POOL_SCORED) %>%
+#   mutate(RE1_val = vals)
+
+
+########################### TEST REPROJECT .gdb LAYERS TO 3577
+
+# 6.3.1.0) Convert TD_POOL_SCORED to sf and then terra vect in EPSG:3577 ..............................
+TD_POOL_SCORED_sf <- st_as_sf(TD_POOL_SCORED, coords = c("x_3577", "y_3577"), crs = 3577)
+TD_POOL_SCORED_vect <- vect(TD_POOL_SCORED_sf)
+
+# 6.3.1.1) Import most recent RE gdb series ..............................................................................
+gdb_path <- "project_data/spatial_inputs/RE/v14/Regional_Ecosystem_v14_alb.gdb" # .gdb file
+
+# 6.3.1.2) Sample the gdb in chunks ....................................................................................
+gdb_layers <- st_layers(gdb_path)$name
+re_layers <- grep("RE_PreClearing|^RE_\\d{4}$", gdb_layers, value = TRUE)
+message("Will process layers: ", paste(re_layers, collapse = ", "))
+attribute_field <- "RE1"
+
+# Function to extract attributes from a single RE layer
+extract_RE_layer <- function(layer_name, pts_vect, attribute_field, chunk_size) {
+  message("Processing layer: ", layer_name)
+  # Read the RE layer from the .gdb and reproject to EPSG:3577
+  re_layer <- vect(gdb_path, layer = layer_name)
+  re_layer <- terra::project(re_layer, "EPSG:3577")
+  
+  res <- rep(NA, nrow(pts_vect))  
+  n_chunks <- ceiling(nrow(pts_vect) / chunk_size)
+  
+  for (i in seq_len(n_chunks)) {
+    message("  - Processing chunk ", i, " of ", n_chunks)
+    idx <- ((i - 1) * chunk_size + 1):min(i * chunk_size, nrow(pts_vect))
+    pts_chunk <- pts_vect[idx, ]
+    extracted <- terra::extract(re_layer[, attribute_field], pts_chunk)
+    res[idx] <- extracted[[attribute_field]]
+    rm(pts_chunk, extracted)
+    gc()
+  }
+  res
+}
+
+# -----------------------------------------------------------------
+# TIMED EXTRACTION ===> 132.92 minutes or 2 hours 13 minutes
+# -----------------------------------------------------------------
+start_time <- Sys.time()
+
+results <- list()
+for (layer in re_layers) {
+  message("Starting extraction for layer: ", layer)
+  vals <- extract_RE_layer(layer, TD_POOL_SCORED_vect, attribute_field, chunk_size)
+  results[[layer]] <- vals
+  message("Finished extraction for layer: ", layer)
+}
+
+results_df <- as.data.frame(results)
+TD_POOL_SCORED <- as.data.frame(TD_POOL_SCORED) %>%
+  bind_cols(results_df)
+
+end_time <- Sys.time()
+runtime <- difftime(end_time, start_time, units = "mins")
+message("Total extraction time: ", round(runtime, 2), " minutes")
+
+
+
+
+
+
+# 6.3.1.3) Add RE flag .........................................................................................................................................
+
 
 
 
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
-# ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
-
+#  ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
 
 ### 6.3.2) High Value Regrowth Mapping
 # 6.3.2.1) Import HVR gdb series  ..............................................................................................................................
-
+gdb_path <- "project_data/spatial_inputs/RE/v14/HighValueRegrowth_14_0_1_alb.gdb" # .gdb file
 
 # 6.3.2.2) Sample the gdb in chunks ............................................................................................................................
+# Select layer names and RE1 column from the .gdb and set SLATS_Albers CRS
+gdb_layers <- st_layers(gdb_path)$name
+hvr_layers <- grep("QLD_HIGH_VALUE_REGROWTH_WORKING_V14_0_1", gdb_layers, value = TRUE)
+message("Will process layers: ", paste(re_layers, collapse = ", "))
+attribute_field <- "HVR"
+
+
+# Function to extract attributes from a single RE layer
+extract_HVR_layer <- function(layer_name, pts_vect, attribute_field, chunk_size) {
+  message("Processing layer: ", layer_name)
+  
+  # Read the RE layer from the .gdb (already in SLATS_Albers CRS)
+  hvr_layer <- vect(gdb_path, layer = layer_name)
+  
+  # Initialise a vector to store results for all points
+  hvrs <- rep(NA, nrow(pts_vect))  # Pre-fill with NA to ensure alignment
+  
+  # Process points in chunks
+  for (i in seq_len(n_chunks)) {
+    message("  - Processing chunk ", i, " of ", n_chunks)
+    
+    # Define the row indices for the current chunk
+    idx <- ((i - 1) * chunk_size + 1):min(i * chunk_size, nrow(pts_vect))
+    pts_chunk <- pts_vect[idx, ]
+    
+    # Extract the attribute field for the current chunk
+    extracted <- terra::extract(hvr_layer[, attribute_field], pts_chunk)
+    
+    # Align the extracted values with the original points
+    hvrs[idx] <- extracted[[attribute_field]]
+    
+    # Clean up memory
+    rm(pts_chunk, extracted)
+    gc()
+  }
+  
+  hvrs  # Return the aligned results
+}
+
+# Loop over RE layers and extract attributes
+results <- list()
+for (layer in hvr_layers) {
+  message("Starting extraction for layer: ", layer)
+  vals <- extract_HVR_layer(layer, TD_POOL_SCORED_vect_proj, attribute_field, chunk_size)
+  results[[layer]] <- vals
+  message("Finished extraction for layer: ", layer)
+}
+
+# Combine extracted results into a data frame
+results_df <- as.data.frame(results)
+
+# Bind the extracted attributes back to the original points data frame
+TD_POOL_SCORED <- as.data.frame(TD_POOL_SCORED) %>%
+  bind_cols(results_df)
+
+# 6.3.2.3) Add HVR flag ........................................................................................................................................
 
 
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
-# ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
+#  ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
 
 ### 6.3.3) Land Use Mapping 
 # 6.3.3.1) Import land use data series  ........................................................................................................................
-
-# QLD LAND USE ALUM
-# SLATS LANDCOVER
-# LANDSAT LANDCOVER TEMPORAL?
-# HUMAN MODIFICATION INDEX?
-
+# ALUM .gdb file
+gdb_path <- "project_data/spatial_inputs/ALUM_land_use/QLD_LANDUSE_June_2019.gdb"
+# DEA LANDSAT LANDCOVER http://dea-public-data.s3-website-ap-southeast-2.amazonaws.com/?prefix=derivative/ga_ls_landcover_class_cyear_3/2-0-0/continental_mosaics/
+dea_tif_files <- list.files(path = "project_data/spatial_inputs/DEA_landcover", pattern = "\\.tif$", full.names = TRUE, recursive = TRUE)
+# HUMAN MODIFICATION INDEX https://gee-community-catalog.org/projects/ghm-v3/
+hmi_tif_files <- list.files(path = "project_data/spatial_inputs/human_modification_v3", pattern = "\\.tif$", full.names = TRUE, recursive = TRUE)
 
 # 6.3.3.2) Sample the gdb in chunks ............................................................................................................................
 
+# 6.3.3.3) Add land use flags ..................................................................................................................................
 
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
-# ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
+#  ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
 
 ### 6.3.4) Burn scars
 # 6.3.4.1) Scrape and import burn scar rasters .................................................................................................................
-# tif_files <- list.files(path = "project_data/spatial_inputs/burn_scars", pattern = "\\.tif$", full.names = TRUE, recursive = TRUE)
-# 
-# # 6.3.4.2) Sample the raster in chunks .........................................................................................................................
-# # Process each raster file
-# for(tif_file in tif_files) {
-#   # Extract year from filename (assuming format like "firescar_2000.tif")
-#   year <- gsub(".*?(\\d{4}).*", "\\1", basename(tif_file))
-#   col_name <- paste0("FIRE_MONTH_", year)
-#   message("Processing: ", basename(tif_file), " (", col_name, ")")
-#   # Load raster
-#   r <- rast(tif_file)
-#   # Initialize result vector
-#   sampled_values <- rep(NA, nrow(TD_POOL_SCORED_vect))
-#   # Process in chunks
-#   n_chunks <- ceiling(nrow(TD_POOL_SCORED_vect) / chunk_size)
-#   for(i in seq_len(n_chunks)) {
-#     start_idx <- (i - 1) * chunk_size + 1
-#     end_idx <- min(i * chunk_size, nrow(TD_POOL_SCORED_vect))
-#     
-#     chunk <- TD_POOL_SCORED_vect[start_idx:end_idx]
-#     sampled_values[start_idx:end_idx] <- terra::extract(r, chunk)[, 2]
-#     
-#     rm(chunk)
-#     gc()
-#     
-#     message(sprintf("  Chunk %d/%d processed", i, n_chunks))
-#   }
-#   # Add results to TD_POOL_SCORED_sf
-#   TD_POOL_SCORED_sf[[col_name]] <- sampled_values
-#   # Clean up
-#   rm(r, sampled_values)
-#   gc()
-# }
-# rm(tif_file, tif_files)
-# gc()
-# 
-# # Save intermediate fire sampled sites
-# st_write(TD_POOL_SCORED_sf, file.path(int_dir, "TD_POOL_SCORED_fire_sampled.gpkg"), quiet = TRUE, delete_dsn = TRUE)
+tif_files <- list.files(path = "project_data/spatial_inputs/burn_scars", pattern = "\\.tif$", full.names = TRUE, recursive = TRUE)
+
+# 6.3.4.2) Sample the raster in chunks .........................................................................................................................
+# Process each raster file
+for(tif_file in tif_files) {
+  # Extract year from filename (assuming format like "firescar_2000.tif")
+  year <- gsub(".*?(\\d{4}).*", "\\1", basename(tif_file))
+  col_name <- paste0("FIRE_MONTH_", year)
+  message("Processing: ", basename(tif_file), " (", col_name, ")")
+  # Load raster
+  r <- rast(tif_file)
+  # Initialize result vector
+  sampled_values <- rep(NA, nrow(TD_POOL_SCORED_vect))
+  # Process in chunks
+  n_chunks <- ceiling(nrow(TD_POOL_SCORED_vect) / chunk_size)
+  for(i in seq_len(n_chunks)) {
+    start_idx <- (i - 1) * chunk_size + 1
+    end_idx <- min(i * chunk_size, nrow(TD_POOL_SCORED_vect))
+
+    chunk <- TD_POOL_SCORED_vect[start_idx:end_idx]
+    sampled_values[start_idx:end_idx] <- terra::extract(r, chunk)[, 2]
+
+    rm(chunk)
+    gc()
+
+    message(sprintf("  Chunk %d/%d processed", i, n_chunks))
+  }
+  # Add results to TD_POOL_SCORED_sf
+  TD_POOL_SCORED_sf[[col_name]] <- sampled_values
+  # Clean up
+  rm(r, sampled_values)
+  gc()
+}
+rm(tif_file, tif_files)
+gc()
+
+# Save intermediate fire sampled sites
+st_write(TD_POOL_SCORED_sf, file.path(int_dir, "TD_POOL_SCORED_fire_sampled.gpkg"), quiet = TRUE, delete_dsn = TRUE)
 
 # 6.3.4.3) Add burn scar flag ..................................................................................................................................
 # CAN IMPORT FIRE SAMPLED TD_POOL_SCORED HERE TO SKIP PROCESSING
@@ -771,7 +959,7 @@ calculate_fd_flags <- function(TD_POOL_SCORED_sf, fixed_dates) {
 
 # Process fire data, calculate metrics and fire disturbance flags
 system.time({TD_POOL_SCORED_sf <- process_fire_metrics(TD_POOL_SCORED_sf)})
-fixed_dates <- as.Date(c("2017-01-01", "2019-01-01", "2021-01-01", "2023-01-01"))
+fixed_dates <- as.Date(c("2017-01-01", "2019-01-01", "2021-01-01", "2023-01-01", "2025-01-01"))
 system.time({TD_POOL_SCORED_sf <- calculate_fd_flags(TD_POOL_SCORED_sf, fixed_dates)})
 
 # 6.3.4.4) Save intermediate fire sampled sites.................................................................................................................
@@ -779,14 +967,14 @@ TD_POOL_SCORED_sf <- TD_POOL_SCORED_sf %>%
   select(-fire_intervals)
 write.csv(TD_POOL_SCORED_sf, file.path(int_dir, "TD_POOL_SCORED_fire_sampled_metrics.csv"), row.names = FALSE)
 
-# Drop intermediate variables and clean up (optional) 
+# Drop intermediate variables and clean up (optional)
 TD_POOL_SCORED_sf <- TD_POOL_SCORED_sf %>%
   select(-FIRE_GUIDELINES, -MIN_FIRE_INTERVAL, -collection_date, -collection_index, -all_of(firemonth_cols))
 rm(col_names, firemonth_cols, fixed_dates, reordered_cols, sorted_firemonth_cols, process_fire_metrics, calculate_fd_flags)
 gc()
 
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
-# ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
+#  ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
 
 ### 6.3.5) Age Since Woody Disturbance
 # 6.3.5.1) Import woody disturbance product  ...................................................................................................................
@@ -822,9 +1010,9 @@ for (i in seq_len(n_chunks)) {
   end_idx <- min(i * chunk_size, nrow(TD_POOL_SCORED_sf))
   chunk <- TD_POOL_SCORED_sf[start_idx:end_idx, ]
   chunk$COLLECTION_YEAR <- as.numeric(format(
-    as.Date(chunk$COLLECTION_DATE, format = "%d/%m/%Y"), 
+    as.Date(chunk$COLLECTION_DATE, format = "%d/%m/%Y"),
     "%Y"))
-  # Identify rows to process (sampled_value between 1-32)
+  # Identify rows to process (sampled_value between 1-33)
   process_rows <- which(chunk$ASWD_2023 >= 1 & chunk$ASWD_2023 <= 33)
   if (length(process_rows) > 0) {
     # Calculate WD_YEAR only for valid rows
@@ -836,17 +1024,14 @@ for (i in seq_len(n_chunks)) {
       chunk$WD_YEAR[process_rows] > chunk$COLLECTION_YEAR[process_rows] ~ "After collection"
     )
   }
-  
   # Write results back to main sf object
   TD_POOL_SCORED_sf$COLLECTION_YEAR[start_idx:end_idx] <- chunk$COLLECTION_YEAR
   TD_POOL_SCORED_sf$WD_YEAR[start_idx:end_idx] <- chunk$WD_YEAR
   TD_POOL_SCORED_sf$WD_TIMING[start_idx:end_idx] <- chunk$WD_TIMING
-  
   # Clean up
   rm(chunk)
   gc()
-  
-  message(sprintf("Processed chunk %d of %d (rows %d to %d) - %d valid rows", 
+  message(sprintf("Processed chunk %d of %d (rows %d to %d) - %d valid rows",
                   i, n_chunks, start_idx, end_idx, length(process_rows)))
 }
 
@@ -860,28 +1045,23 @@ gc()
 # TODO: look at efficiency improvements to function
 
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
-# ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
+#  ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
 
-### 2.5) SLATS Change of Woody Vegetation
-# 2.5.1) Import SLATS gdb series  ..............................................................................................................................
+### 6.3.6) SLATS Change of Woody Vegetation
+# 6.3.6.1) Import SLATS gdb series  ..............................................................................................................................
 slats_dir <- "project_data/spatial_inputs/SLATS_clearing"
 slats_folders <- list.dirs(slats_dir, full.names = TRUE, recursive = FALSE)
 
-# 2.5.2) Sample the gdb in chunks ..............................................................................................................................
-
-
+# 6.3.6.2) Sample the gdb in chunks ..............................................................................................................................
 # Add a unique ID column to rejoin results
 TD_POOL_SCORED_sf$JOIN_ID <- seq_len(nrow(TD_POOL_SCORED_sf))
 
 # Loop over each SLATS folder
 for (folder in slats_folders) {
-  
   year_id <- basename(folder)  # e.g. "SLATS_0001"
-  
   # Try to find a .gdb or .shp in the folder
   gdb_path <- list.files(folder, pattern = "\\.gdb$", full.names = TRUE)[1]
   shp_path <- list.files(folder, pattern = "\\.shp$", full.names = TRUE)[1]
-  
   # Determine which format to use
   if (!is.na(gdb_path)) {
     data_path <- gdb_path
@@ -893,13 +1073,10 @@ for (folder in slats_folders) {
     warning(paste0("No .gdb or .shp found in ", folder, " — skipping."))
     next
   }
-  
   cat("Processing:", year_id, "\n")
-  
   # Read the SLATS layer
   slats_layer <- st_read(data_path, quiet = TRUE) %>%
     st_transform(st_crs(TD_POOL_SCORED_sf))
-  
   # Handle inconsistent column names: 'descr' vs 'description'
   if ("descr" %in% names(slats_layer)) {
     slats_layer <- slats_layer %>% dplyr::rename(clearing_descr = descr)
@@ -909,44 +1086,275 @@ for (folder in slats_folders) {
     warning(paste0("Skipping ", year_id, " — no 'descr' or 'description' column found."))
     next
   }
-  
   # Create empty character vector to hold sampled descriptions
   sampled_descr <- rep(NA_character_, nrow(TD_POOL_SCORED_sf))
-  
   # Loop over chunks
   for (i in seq_len(n_chunks)) {
     idx_start <- (i - 1) * chunk_size + 1
     idx_end <- min(i * chunk_size, nrow(TD_POOL_SCORED_sf))
-    
+
     chunk <- TD_POOL_SCORED_sf[idx_start:idx_end, ]
-    
     # Spatial join (get 'clearing_descr' text column)
     joined <- st_join(chunk, slats_layer[, "clearing_descr"], join = st_intersects, left = TRUE)
-    
     # Fill values
     sampled_descr[idx_start:idx_end] <- joined$clearing_descr
   }
-  
   # Add column (as character)
   col_name <- paste0(year_id, "_code")
   TD_POOL_SCORED_sf[[col_name]] <- sampled_descr
 }
 
+# Save intermediate fire sampled sites
+st_write(TD_POOL_SCORED_sf, file.path(int_dir, "TD_POOL_SCORED_fire_slats_sampled.gpkg"), quiet = TRUE, delete_dsn = TRUE)
 
+# Clean up
+rm(slats_layer, chunk, joined, col_name, data_path, folder, gdb_path, shp_path, i, idx_end, idx_start, sampled_descr, slats_folders, slats_dir, use_layer, year_id)
+gc()
+
+# 6.3.5.3) Add in SLATS clearing flags .........................................................................................................................
+# CAN IMPORT FIRE and SLATS SAMPLED TD_POOL_SCORED HERE TO SKIP PROCESSING
+TD_POOL_SCORED_sf <- st_read(file.path(int_dir, "TD_POOL_SCORED_fire_slats_sampled.gpkg"), quiet = TRUE)
+
+################################################################################################################################################################
+
+# # Optimised function to process the dataset
+# process_slats_data_optimised <- function(data) {
+#   # Convert COLLECTION_DATE to Date format
+#   data <- data %>%
+#     mutate(COLLECTION_DATE = dmy(COLLECTION_DATE))
+#   
+#   # Identify SLATS columns and extract years
+#   slats_cols <- grep("^SLATS_", names(data), value = TRUE)
+#   slats_years <- str_extract(slats_cols, "\\d{4}_\\d{4}") %>%
+#     str_replace("-", "/")
+#   
+#   # Precompute SLATS year start and end dates
+#   slats_year_start <- dmy(paste0("01/08/", str_sub(slats_years, 1, 4)))
+#   slats_year_end <- dmy(paste0("30/07/", str_sub(slats_years, 6, 7)))
+#   
+#   # Initialise new columns
+#   data <- data %>%
+#     mutate(
+#       CLEARING_POST_COLLECTION = 0,
+#       REGROWTH_POST_COLLECTION = 0,
+#       MOST_RECENT_CLEARING = NA_character_,
+#       MOST_RECENT_CLEARING_PRE_COLLECTION = NA_character_
+#     )
+#   
+#   # Process each row efficiently
+#   for (i in seq_len(nrow(data))) {
+#     collection_date <- data$COLLECTION_DATE[i]
+#     
+#     # Extract SLATS values for the current row
+#     slats_values <- data[i, slats_cols]
+#     
+#     # Determine which SLATS columns are before and after the collection date
+#     after_collection <- slats_year_start > collection_date
+#     before_collection <- slats_year_end < collection_date
+#     
+#     # Post-collection clearing and regrowth events
+#     post_values <- slats_values[after_collection]
+#     data$CLEARING_POST_COLLECTION[i] <- sum(!is.na(post_values) & !str_starts(post_values, "Regrowth"))
+#     data$REGROWTH_POST_COLLECTION[i] <- sum(!is.na(post_values) & str_starts(post_values, "Regrowth"))
+#     
+#     # Most recent clearing after collection
+#     if (any(!is.na(post_values))) {
+#       most_recent_index <- which.max(slats_year_start[after_collection])
+#       most_recent_value <- post_values[most_recent_index]
+#       most_recent_year <- slats_years[after_collection][most_recent_index]
+#       data$MOST_RECENT_CLEARING[i] <- paste(most_recent_year, "-", most_recent_value)
+#     }
+#     
+#     # Most recent clearing before collection
+#     pre_values <- slats_values[before_collection]
+#     if (any(!is.na(pre_values))) {
+#       most_recent_index <- which.max(slats_year_end[before_collection])
+#       most_recent_value <- pre_values[most_recent_index]
+#       most_recent_year <- slats_years[before_collection][most_recent_index]
+#       data$MOST_RECENT_CLEARING_PRE_COLLECTION[i] <- paste(most_recent_year, "-", most_recent_value)
+#     }
+#   }
+#   
+#   return(data)
+# }
+# 
+# # Apply the optimised function to your dataset
+# system.time({TD_POOL_SCORED_sf <- process_slats_data_optimised(TD_POOL_SCORED_sf)}) ##### took ~6000 seconds =(
+
+################################################################################################################################################################
+# DEEPSEEK -----> testing in progress ----> ~3000 seconds
+
+add_clearing_summary_columns <- function(data) {
+  # Convert collection date to Date type for comparison
+  data$COLLECTION_DATE <- as.Date(data$COLLECTION_DATE, format = "%d/%m/%Y")
+  
+  # Get all SLATS columns
+  slats_cols <- grep("^SLATS_", names(data), value = TRUE)
+  
+  # Initialize new columns
+  data$CLEARING_POST_COLLECTION <- 0L
+  data$REGROWTH_POST_COLLECTION <- 0L
+  data$MOST_RECENT_CLEARING <- NA_character_
+  data$CLEARING_PRE_COLLECTION <- NA_character_
+  
+  # Extract years from SLATS columns and create date ranges
+  slats_years <- strsplit(sub("^SLATS_", "", slats_cols), "_")
+  slats_start_dates <- as.Date(paste0("01/08/", sapply(slats_years, `[`, 1)), format = "%d/%m/%Y")
+  slats_end_dates <- as.Date(paste0("30/07/", sapply(slats_years, `[`, 2)), format = "%d/%m/%Y")
+  
+  # Process each row
+  for (i in seq_len(nrow(data))) {
+    collection_date <- data$COLLECTION_DATE[i]
+    
+    # Initialize variables for this row
+    clearing_post <- 0L
+    regrowth_post <- 0L
+    recent_clearing <- NULL
+    pre_clearing <- NULL
+    
+    # Process each SLATS column in chronological order (oldest to newest)
+    for (j in order(slats_start_dates)) {
+      slats_value <- data[[slats_cols[j]]][i]
+      
+      # Skip NA values
+      if (is.na(slats_value)) next
+      
+      # Check if this clearing happened after collection date
+      if (slats_start_dates[j] > collection_date) {
+        if (grepl("^Regrowth", slats_value)) {
+          regrowth_post <- regrowth_post + 1L
+        } else {
+          clearing_post <- clearing_post + 1L
+        }
+      }
+      
+      # Track most recent clearing (regardless of collection date)
+      if (!grepl("^Regrowth", slats_value)) {
+        recent_clearing <- list(
+          value = slats_value,
+          year_range = paste0(sub("_", "/", sub("^SLATS_", "", slats_cols[j])))
+        )
+      }
+      
+      # Track most recent clearing before collection date
+      if (slats_end_dates[j] < collection_date && !grepl("^Regrowth", slats_value)) {
+        pre_clearing <- list(
+          value = slats_value,
+          year_range = paste0(sub("_", "/", sub("^SLATS_", "", slats_cols[j])))
+        )
+      }
+    }
+    
+    # Update row values
+    data$CLEARING_POST_COLLECTION[i] <- clearing_post
+    data$REGROWTH_POST_COLLECTION[i] <- regrowth_post
+    
+    if (!is.null(recent_clearing)) {
+      data$MOST_RECENT_CLEARING[i] <- paste0(
+        recent_clearing$year_range, " - ", recent_clearing$value
+      )
+    }
+    
+    if (!is.null(pre_clearing)) {
+      data$CLEARING_PRE_COLLECTION[i] <- paste0(
+        pre_clearing$year_range, " - ", pre_clearing$value
+      )
+    }
+  }
+  
+  return(data)
+}
+
+system.time({TD_POOL_SCORED_sf <- add_clearing_summary_columns(TD_POOL_SCORED_sf)})
+
+# TODO: look at efficiency improvements to function ----> ~2338 seconds = 40 mins
+
+write.csv(TD_POOL_SCORED_sf, file.path(int_dir, "TD_POOL_SCORED_slats_sampled_checking.csv"), row.names = FALSE)
+
+################################################################################################################################################################
+
+# # DEEPSEEK OPTIMISED
+# 
+# add_clearing_summary_columns_optimized <- function(data) {
+#   # Convert collection date to Date type once
+#   collection_dates <- as.Date(data$COLLECTION_DATE, format = "%d/%m/%Y")
+#   
+#   # Identify SLATS columns and pre-process their date ranges
+#   slats_cols <- grep("^SLATS_", names(data), value = TRUE)
+#   
+#   # Extract years and create date ranges (vectorized)
+#   year_pairs <- strsplit(sub("^SLATS_", "", slats_cols), "_")
+#   start_years <- as.integer(sapply(year_pairs, `[`, 1))
+#   end_years <- as.integer(sapply(year_pairs, `[`, 2))
+#   
+#   # Create start and end dates (August 1 - July 30)
+#   start_dates <- as.Date(paste0(start_years, "-08-01"))
+#   end_dates <- as.Date(paste0(end_years, "-07-30"))
+#   
+#   # Order columns chronologically (oldest to newest)
+#   col_order <- order(start_dates)
+#   slats_cols_ordered <- slats_cols[col_order]
+#   start_dates_ordered <- start_dates[col_order]
+#   end_dates_ordered <- end_dates[col_order]
+#   
+#   # Initialize result vectors (more efficient than growing columns)
+#   clearing_post <- integer(nrow(data))
+#   regrowth_post <- integer(nrow(data))
+#   most_recent_clearing <- character(nrow(data))
+#   pre_collection_clearing <- character(nrow(data))
+#   
+#   # Main processing loop
+#   for (i in seq_along(slats_cols_ordered)) {
+#     col <- slats_cols_ordered[i]
+#     col_data <- data[[col]]
+#     is_regrowth <- startsWith(col_data, "Regrowth")
+#     is_clearing <- !is.na(col_data) & !is_regrowth
+#     
+#     # Date comparisons for this SLATS period
+#     period_start <- start_dates_ordered[i]
+#     period_end <- end_dates_ordered[i]
+#     
+#     # Post-collection counts
+#     post_mask <- collection_dates < period_start
+#     clearing_post[post_mask & is_clearing] <- clearing_post[post_mask & is_clearing] + 1L
+#     regrowth_post[post_mask & is_regrowth] <- regrowth_post[post_mask & is_regrowth] + 1L
+#     
+#     # Most recent clearing (overwrites with newer values)
+#     year_range <- paste0(start_years[col_order][i], "/", substr(end_years[col_order][i], 3, 4))
+#     most_recent_clearing[is_clearing] <- paste0(year_range, " - ", col_data[is_clearing])
+#     
+#     # Pre-collection clearing (only if before collection date)
+#     pre_mask <- collection_dates > period_end
+#     new_pre <- paste0(year_range, " - ", col_data)
+#     pre_collection_clearing[pre_mask & is_clearing] <- new_pre[pre_mask & is_clearing]
+#   }
+#   
+#   # Add results to the data frame
+#   data$CLEARING_POST_COLLECTION <- clearing_post
+#   data$REGROWTH_POST_COLLECTION <- regrowth_post
+#   data$MOST_RECENT_CLEARING <- most_recent_clearing
+#   data$MOST_RECENT_CLEARING[most_recent_clearing == ""] <- NA_character_
+#   data$CLEARING_PRE_COLLECTION <- pre_collection_clearing
+#   data$CLEARING_PRE_COLLECTION[pre_collection_clearing == ""] <- NA_character_
+#   
+#   return(data)
+# }
+# 
+# system.time({TD_POOL_SCORED_sf1 <- add_clearing_summary_columns_optimized(TD_POOL_SCORED_sf)})
 
 # TODO: look at efficiency improvements to function
 # TODO: Generate SLATS flags based on clearing descriptions and collection date, clean up and rm intermediates
 
 
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
-# ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
+#  ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
 
 
 
 
 ##### 7) Site auditing ##### 
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
-# ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝  
+#  ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝  
 #                              ███████╗     ███████╗██╗████████╗███████╗     █████╗ ██╗   ██╗██████╗ ██╗████████╗██╗███╗   ██╗ ██████╗ 
 #                              ╚════██║     ██╔════╝██║╚══██╔══╝██╔════╝    ██╔══██╗██║   ██║██╔══██╗██║╚══██╔══╝██║████╗  ██║██╔════╝ 
 #                                  ██╔╝     ███████╗██║   ██║   █████╗      ███████║██║   ██║██║  ██║██║   ██║   ██║██╔██╗ ██║██║  ███╗
@@ -954,7 +1362,7 @@ for (folder in slats_folders) {
 #                                 ██║██╗    ███████║██║   ██║   ███████╗    ██║  ██║╚██████╔╝██████╔╝██║   ██║   ██║██║ ╚████║╚██████╔╝
 #                                 ╚═╝╚═╝    ╚══════╝╚═╝   ╚═╝   ╚══════╝    ╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═╝   ╚═╝   ╚═╝╚═╝  ╚═══╝ ╚═════╝ 
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
-# ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝ 
+#  ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝ 
 
 # TODO:
 # check for any evidence of disturbance post collection
