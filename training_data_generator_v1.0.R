@@ -384,268 +384,72 @@ re_layers <- grep("RE_PreClearing|RE_2006b|^RE_\\d{4}$", gdb_layers, value = TRU
 message("Will process layers: ", paste(re_layers, collapse = ", "))
 attribute_field <- "RE1"
 
-# # Function to extract attributes from a single RE layer (with geometry fix) ===> takes days to run!
-# extract_RE_layer <- function(layer_name, pts_vect, attribute_field, chunk_size) {
-#   message("Processing layer: ", layer_name)
-#   # Read layer
-#   re_layer <- st_read(gdb_path, layer = layer_name, quiet = TRUE)
-#   # Reproject if needed
-#   if (st_crs(re_layer) != 3577) {
-#     re_layer <- st_transform(re_layer, 3577)
-#   }
-#   # Check and fix invalid geometries
-#   invalid_count <- sum(!st_is_valid(re_layer), na.rm = TRUE)
-#   if (invalid_count > 0) {
-#     message("  Found ", invalid_count, " invalid geometries -> fixing")
-#     fixed_geom <- lwgeom::lwgeom_make_valid(st_geometry(re_layer))
-#     nonempty   <- !st_is_empty(fixed_geom)
-#     re_layer   <- st_sf(re_layer[nonempty, , drop = FALSE], geometry = fixed_geom[nonempty])
-#   }
-#   # Convert to terra vect
-#   re_layer <- vect(re_layer)
-#   # Pre-allocate results
-#   res <- rep(NA, nrow(pts_vect))
-#   for (i in seq_len(n_chunks)) {
-#     message("  - Processing chunk ", i, " of ", n_chunks)
-#     idx <- ((i - 1) * chunk_size + 1):min(i * chunk_size, nrow(pts_vect))
-#     pts_chunk <- pts_vect[idx, ]
-#     extracted_vals <- terra::extract(re_layer[, attribute_field], pts_chunk) %>%
-#       dplyr::pull(attribute_field)
-#     res[idx] <- extracted_vals
-#     rm(pts_chunk, extracted_vals); gc()
-#   }
-#   res
-# }
-
-################################################################################################################################################################
-# TODO: TEST THIS FUNCTION
 # Function to extract attributes from a single RE layer (with caching of repaired gpkg)
-extract_RE_layer <- function(layer_name, pts_vect, attribute_field, chunk_size) {
-  message("Processing layer: ", layer_name)
+extract_RE_layer <- function(layer_name, pts_sf, attribute_field = "RE1",
+                             batch_size = 50000,
+                             gpkg_dir = "project_data/spatial_inputs/RE/v14/Regional_Ecosystem_v14_3577",
+                             gdb_path = "project_data/spatial_inputs/RE/v14/Regional_Ecosystem_v14_alb.gdb") {
   # Define cache path for repaired gpkg
-  gpkg_path <- file.path("project_data/spatial_inputs/RE/v14/Regional_Ecosystem_v14_3577",
-                         paste0(layer_name, ".gpkg"))
-  # Create folder if not exists
+  gpkg_path <- file.path(gpkg_dir, paste0(layer_name, ".gpkg"))
   dir.create(dirname(gpkg_path), recursive = TRUE, showWarnings = FALSE)
-  # Check if repaired gpkg already exists
+  # Load layer (use cached gpkg if it exists)
   if (file.exists(gpkg_path)) {
-    message("  Found cached repaired file -> using: ", gpkg_path)
-    re_layer <- st_read(gpkg_path, quiet = TRUE)
+    message("Found cached GPKG: ", gpkg_path)
+    re_layer <- st_read(gpkg_path, quiet = TRUE) %>% select(all_of(attribute_field))
   } else {
-    message("  Reading original layer from gdb: ", layer_name)
-    re_layer <- st_read(gdb_path, layer = layer_name, quiet = TRUE)
+    message("Reading layer from GDB: ", layer_name)
+    re_layer <- st_read(gdb_path, layer = layer_name, quiet = TRUE) %>% select(all_of(attribute_field))
     # Reproject if needed
-    if (st_crs(re_layer) != 3577) {
-      re_layer <- st_transform(re_layer, 3577)
+    if (st_crs(re_layer) != st_crs(pts_sf)) {
+      re_layer <- st_transform(re_layer, st_crs(pts_sf))
     }
-    # Check and fix invalid geometries
+    # Fix invalid geometries
     invalid_count <- sum(!st_is_valid(re_layer), na.rm = TRUE)
     if (invalid_count > 0) {
-      message("  Found ", invalid_count, " invalid geometries -> fixing")
-      fixed_geom <- lwgeom::lwgeom_make_valid(st_geometry(re_layer))
-      nonempty   <- !st_is_empty(fixed_geom)
-      re_layer   <- st_sf(re_layer[nonempty, , drop = FALSE], geometry = fixed_geom[nonempty])
+      message("Fixing ", invalid_count, " invalid geometries")
+      fixed_geom <- lwgeom::st_make_valid(st_geometry(re_layer))
+      nonempty <- !st_is_empty(fixed_geom)
+      re_layer <- st_sf(re_layer[nonempty, , drop = FALSE], geometry = fixed_geom[nonempty])
     }
-    # Save repaired version
+    # Save repaired gpkg
     st_write(re_layer, gpkg_path, delete_dsn = TRUE, quiet = TRUE)
-    message("  Saved repaired layer to: ", gpkg_path)
+    message("Saved repaired layer to: ", gpkg_path)
   }
-  # Convert to terra vect
-  re_layer <- vect(re_layer)
   # Pre-allocate results
-  res <- rep(NA, nrow(pts_vect))
-  for (i in seq_len(n_chunks)) {
-    message("  - Processing chunk ", i, " of ", n_chunks)
-    idx <- ((i - 1) * chunk_size + 1):min(i * chunk_size, nrow(pts_vect))
-    pts_chunk <- pts_vect[idx, ]
-    extracted_vals <- terra::extract(re_layer[, attribute_field], pts_chunk) %>%
-      dplyr::pull(attribute_field)
-    res[idx] <- extracted_vals
-    rm(pts_chunk, extracted_vals); gc()
+  res <- rep(NA, nrow(pts_sf))
+  n_chunks <- ceiling(nrow(pts_sf) / batch_size)
+  # Process in batches using sparse intersections
+  for (i in 1:n_chunks) {
+    idx <- ((i-1)*batch_size + 1):min(i*batch_size, nrow(pts_sf))
+    batch <- pts_sf[idx, ]
+    # Sparse intersection
+    hits <- st_intersects(batch, re_layer, sparse = TRUE)
+    # Extract attribute
+    res[idx] <- sapply(hits, function(x) {
+      if(length(x) == 0) return(NA)
+      paste(unique(re_layer[[attribute_field]][x]), collapse = ",")
+    })
+    # Free memory
+    rm(batch, hits); gc()
+    message("Processed batch ", i, " of ", n_chunks)
   }
-  res
+  return(res)
 }
-
-################################################################################################################################################################
-
-
-# Time the extraction ===> 211 minutes with fixed gpkgs
+# Timed Extraction test for sparse and st_intersects
 start_time <- Sys.time()
-
 results <- list()
 for (layer in re_layers) {
   message("Starting extraction for layer: ", layer)
-  vals <- extract_RE_layer(layer, TD_POOL_SCORED_vect, attribute_field, chunk_size)
+  vals <- extract_RE_layer(layer, TD_POOL_SCORED_sf, attribute_field = "RE1", batch_size = 50000)
   results[[layer]] <- vals
-  message("Finished extraction for layer: ", layer)
 }
-
 end_time <- Sys.time()
 message("Total extraction time: ", round(difftime(end_time, start_time, units = "mins"), 3), " minutes")
 
 # Bind results back to TD_POOL_SCORED
 results_df <- as.data.frame(results)
-TD_POOL_SCORED <- as.data.frame(TD_POOL_SCORED) %>%
-  bind_cols(results_df)
-
-
-########################################################################################################################################################
-
-# gdb_layers <- st_layers(gdb_path)$name
-# re_layers <- grep("RE_PreClearing|^RE_\\d{4}$", gdb_layers, value = TRUE)
-# message("Will process layers: ", paste(re_layers, collapse = ", "))
-# attribute_field <- "RE1"
-# 
-# # Define the SLATS_Albers CRS using its Proj4 string and ensure the entire points dataset is projected to SLATS_Albers CRS once
-# slats_albers_crs <- "+proj=aea +lat_0=-28 +lon_0=145 +lat_1=-12 +lat_2=-28 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs"
-# TD_POOL_SCORED_vect_proj <- terra::project(TD_POOL_SCORED_vect, slats_albers_crs)
-# gc()
-# 
-# # Function to extract attributes from a single RE layer
-# extract_RE_layer <- function(layer_name, pts_vect, attribute_field, chunk_size) {
-#   message("Processing layer: ", layer_name)
-#   # Read the RE layer from the .gdb (already in SLATS_Albers CRS)
-#   re_layer <- vect(gdb_path, layer = layer_name)
-#   # Initialise a vector to store results for all points
-#   res <- rep(NA, nrow(pts_vect))  # Pre-fill with NA to ensure alignment
-#   # Process points in chunks
-#   for (i in seq_len(n_chunks)) {
-#     message("  - Processing chunk ", i, " of ", n_chunks)
-#     # Define the row indices for the current chunk
-#     idx <- ((i - 1) * chunk_size + 1):min(i * chunk_size, nrow(pts_vect))
-#     pts_chunk <- pts_vect[idx, ]
-#     # Extract the attribute field for the current chunk
-#     extracted <- terra::extract(re_layer[, attribute_field], pts_chunk)
-#     # Align the extracted values with the original points
-#     res[idx] <- extracted[[attribute_field]]
-#     # Clean up memory
-#     rm(pts_chunk, extracted)
-#     gc()
-#   }
-#   res  # Return the aligned results
-# }
-# 
-# # Loop over RE layers and extract attributes
-# results <- list()
-# for (layer in re_layers) {
-#   message("Starting extraction for layer: ", layer)
-#   vals <- extract_RE_layer(layer, TD_POOL_SCORED_vect_proj, attribute_field, chunk_size)
-#   results[[layer]] <- vals
-#   message("Finished extraction for layer: ", layer)
-# }
-# 
-# # Combine extracted results into a data frame an bind the extracted attributes back to the original points data frame
-# results_df <- as.data.frame(results)
-# TD_POOL_SCORED <- as.data.frame(TD_POOL_SCORED) %>%
-#   bind_cols(results_df)
-# 
-# # Save the final results to a CSV file and clean up
-# output_path <- file.path(int_dir, "TD_POOL_SCORED_with_RE_attributes.csv")
-# write.csv(TD_POOL_SCORED, output_path, row.names = FALSE)
-# message("Processing complete. Results saved to: ", output_path)
-# rm()
-# gc()
-
-
-
-# ##################################### GPKG TEST ---> FIXED 99.9999% of errors, so has to be projection related
-# 
-# # 6.3.1.1) Import single RE gpkg for testing ..........................................................................................
-# gpkg_path <- "project_data/spatial_inputs/RE/v14/RE_v14_PC_3577.gpkg" # .gpkg file
-# attribute_field <- "RE1"
-# gc()
-# 
-# # Function to extract attributes from the gpkg
-# extract_RE_layer <- function(gpkg_path, pts_vect, attribute_field, chunk_size) {
-#   message("Processing gpkg: ", gpkg_path)
-#   # Read the RE layer from the .gpkg (already in SLATS_Albers CRS)
-#   re_layer <- vect(gpkg_path)
-#   # Initialise a vector to store results for all points
-#   res <- rep(NA, nrow(pts_vect))  
-#   n_chunks <- ceiling(nrow(pts_vect) / chunk_size)
-#   # Process points in chunks
-#   for (i in seq_len(n_chunks)) {
-#     message("  - Processing chunk ", i, " of ", n_chunks)
-#     idx <- ((i - 1) * chunk_size + 1):min(i * chunk_size, nrow(pts_vect))
-#     pts_chunk <- pts_vect[idx, ]
-#     extracted <- terra::extract(re_layer[, attribute_field], pts_chunk)
-#     res[idx] <- extracted[[attribute_field]]
-#     rm(pts_chunk, extracted)
-#     gc()
-#   }
-#   res
-# }
-# 
-# # Extract attributes directly from the single gpkg
-# vals <- extract_RE_layer(gpkg_path, TD_POOL_SCORED_vect, attribute_field, chunk_size)
-# 
-# # Combine extracted results back to the points data frame
-# TD_POOL_SCORED <- as.data.frame(TD_POOL_SCORED) %>%
-#   mutate(RE1_val = vals)
-
-
-########################### TEST REPROJECT .gdb LAYERS TO 3577
-
-# 6.3.1.0) Convert TD_POOL_SCORED to sf and then terra vect in EPSG:3577 ..............................
-TD_POOL_SCORED_sf <- st_as_sf(TD_POOL_SCORED, coords = c("x_3577", "y_3577"), crs = 3577)
-TD_POOL_SCORED_vect <- vect(TD_POOL_SCORED_sf)
-
-# 6.3.1.1) Import most recent RE gdb series ..............................................................................
-gdb_path <- "project_data/spatial_inputs/RE/v14/Regional_Ecosystem_v14_alb.gdb" # .gdb file
-
-# 6.3.1.2) Sample the gdb in chunks ....................................................................................
-gdb_layers <- st_layers(gdb_path)$name
-re_layers <- grep("RE_PreClearing|^RE_\\d{4}$", gdb_layers, value = TRUE)
-message("Will process layers: ", paste(re_layers, collapse = ", "))
-attribute_field <- "RE1"
-
-# Function to extract attributes from a single RE layer
-extract_RE_layer <- function(layer_name, pts_vect, attribute_field, chunk_size) {
-  message("Processing layer: ", layer_name)
-  # Read the RE layer from the .gdb and reproject to EPSG:3577
-  re_layer <- vect(gdb_path, layer = layer_name)
-  re_layer <- terra::project(re_layer, "EPSG:3577")
-  
-  res <- rep(NA, nrow(pts_vect))  
-  n_chunks <- ceiling(nrow(pts_vect) / chunk_size)
-  
-  for (i in seq_len(n_chunks)) {
-    message("  - Processing chunk ", i, " of ", n_chunks)
-    idx <- ((i - 1) * chunk_size + 1):min(i * chunk_size, nrow(pts_vect))
-    pts_chunk <- pts_vect[idx, ]
-    extracted <- terra::extract(re_layer[, attribute_field], pts_chunk)
-    res[idx] <- extracted[[attribute_field]]
-    rm(pts_chunk, extracted)
-    gc()
-  }
-  res
-}
-
-# -----------------------------------------------------------------
-# TIMED EXTRACTION ===> 132.92 minutes or 2 hours 13 minutes
-# -----------------------------------------------------------------
-start_time <- Sys.time()
-
-results <- list()
-for (layer in re_layers) {
-  message("Starting extraction for layer: ", layer)
-  vals <- extract_RE_layer(layer, TD_POOL_SCORED_vect, attribute_field, chunk_size)
-  results[[layer]] <- vals
-  message("Finished extraction for layer: ", layer)
-}
-
-results_df <- as.data.frame(results)
-TD_POOL_SCORED <- as.data.frame(TD_POOL_SCORED) %>%
-  bind_cols(results_df)
-
-end_time <- Sys.time()
-runtime <- difftime(end_time, start_time, units = "mins")
-message("Total extraction time: ", round(runtime, 2), " minutes")
-
-
-
-
-
+TD_POOL_SCORED <- bind_cols(TD_POOL_SCORED, results_df)
+write.csv(TD_POOL_SCORED, file.path(int_dir, "TD_RE_sampled.csv"), row.names = FALSE)
 
 # 6.3.1.3) Add RE flag .........................................................................................................................................
 
@@ -667,53 +471,6 @@ message("Will process layers: ", paste(re_layers, collapse = ", "))
 attribute_field <- "HVR"
 
 
-# Function to extract attributes from a single RE layer
-extract_HVR_layer <- function(layer_name, pts_vect, attribute_field, chunk_size) {
-  message("Processing layer: ", layer_name)
-  
-  # Read the RE layer from the .gdb (already in SLATS_Albers CRS)
-  hvr_layer <- vect(gdb_path, layer = layer_name)
-  
-  # Initialise a vector to store results for all points
-  hvrs <- rep(NA, nrow(pts_vect))  # Pre-fill with NA to ensure alignment
-  
-  # Process points in chunks
-  for (i in seq_len(n_chunks)) {
-    message("  - Processing chunk ", i, " of ", n_chunks)
-    
-    # Define the row indices for the current chunk
-    idx <- ((i - 1) * chunk_size + 1):min(i * chunk_size, nrow(pts_vect))
-    pts_chunk <- pts_vect[idx, ]
-    
-    # Extract the attribute field for the current chunk
-    extracted <- terra::extract(hvr_layer[, attribute_field], pts_chunk)
-    
-    # Align the extracted values with the original points
-    hvrs[idx] <- extracted[[attribute_field]]
-    
-    # Clean up memory
-    rm(pts_chunk, extracted)
-    gc()
-  }
-  
-  hvrs  # Return the aligned results
-}
-
-# Loop over RE layers and extract attributes
-results <- list()
-for (layer in hvr_layers) {
-  message("Starting extraction for layer: ", layer)
-  vals <- extract_HVR_layer(layer, TD_POOL_SCORED_vect_proj, attribute_field, chunk_size)
-  results[[layer]] <- vals
-  message("Finished extraction for layer: ", layer)
-}
-
-# Combine extracted results into a data frame
-results_df <- as.data.frame(results)
-
-# Bind the extracted attributes back to the original points data frame
-TD_POOL_SCORED <- as.data.frame(TD_POOL_SCORED) %>%
-  bind_cols(results_df)
 
 # 6.3.2.3) Add HVR flag ........................................................................................................................................
 
@@ -757,13 +514,12 @@ for(tif_file in tif_files) {
   for(i in seq_len(n_chunks)) {
     start_idx <- (i - 1) * chunk_size + 1
     end_idx <- min(i * chunk_size, nrow(TD_POOL_SCORED_vect))
-
+    # Sample chunk
     chunk <- TD_POOL_SCORED_vect[start_idx:end_idx]
     sampled_values[start_idx:end_idx] <- terra::extract(r, chunk)[, 2]
-
+    # Clean up
     rm(chunk)
     gc()
-
     message(sprintf("  Chunk %d/%d processed", i, n_chunks))
   }
   # Add results to TD_POOL_SCORED_sf
