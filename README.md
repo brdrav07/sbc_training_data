@@ -7,4 +7,4 @@ This script generates Spatial BioCondition training datasets by generating a poo
 # 4) RE assignment: checks site REs against the latest version of REDD, and changes/assigns conflicts via RE mapping, landzone  and composition data
 # 5) Site scoring: scores sites against the latest version of benchmarks (including drafts), and assigns a score to each site where possible
 # 6) Site assessment: assesses sites against a series of spatial criteria to ensure they meet the requirements for inclusion in the training dataset
-# 7) Site auditing: selects sites based on the scoring and assessment criteria, and generates a final training dataset
+# 7) Site auditing: selects sites based on the scoring, spatial assessment criteria, and SBC model parameters to generate a final training dataset

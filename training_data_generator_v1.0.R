@@ -302,7 +302,7 @@ gc()
 #                                          |__|                                                  
 
 # TD_POOL_SCORED <- read.csv(file.path(train_in_dir,"REv13_POI_TEST.csv")) # Use this large dummy POI dataset for testing
-TD_POOL_SCORED <- read.csv(file.path(train_in_dir,"RE_PC_v14_FG_SBCfiltered.csv")) # Use this large dummy POI dataset for testing
+TD_POOL_SCORED <- read.csv(file.path(train_in_dir,"RE_PC_v14_FG_SBC_filtered.csv")) # Use this large dummy POI dataset for testing
 
 #   ______    ______      _______         __           __                                                           __              
 #  |    __|  |__    |    |_     _|.---.-.|  |--.--.--.|  |.---.-.----.    .-----.----.-----.----.-----.-----.-----.|__|.-----.-----.
@@ -469,7 +469,7 @@ extract_RE_layer <- function(layer_name, pts_vect, attribute_field, chunk_size) 
 ################################################################################################################################################################
 
 
-# Time the extraction
+# Time the extraction ===> 211 minutes with fixed gpkgs
 start_time <- Sys.time()
 
 results <- list()
@@ -487,33 +487,6 @@ message("Total extraction time: ", round(difftime(end_time, start_time, units = 
 results_df <- as.data.frame(results)
 TD_POOL_SCORED <- as.data.frame(TD_POOL_SCORED) %>%
   bind_cols(results_df)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ########################################################################################################################################################
@@ -1350,6 +1323,18 @@ write.csv(TD_POOL_SCORED_sf, file.path(int_dir, "TD_POOL_SCORED_slats_sampled_ch
 #  ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
 
 
+#  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
+#  ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
+
+### 6.3.7) SBC proximity triggers for roads, re boundary, other td points
+# 6.3.6.1) Import SLATS gdb series  ..............................................................................................................................
+
+
+
+# create 90 m buffer around all points using sentinel grid window 9x9
+# intersect point assessment window with trigger layers
+# look at eight surrounding 9x9 assessment windows and check triggers to suggest point relocation
+
 
 
 ##### 7) Site auditing ##### 
@@ -1371,65 +1356,8 @@ write.csv(TD_POOL_SCORED_sf, file.path(int_dir, "TD_POOL_SCORED_slats_sampled_ch
 
 # cross reference discarded site REs with TD deficits and analogous to reprioritise
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#------------------------------------------ 2) Training Data Compiler -------------------------------------------------#
-# 2.1) Mutate and join training data sources
-
-# 2.2) Remove duplicates and ensure most recent site visit
-
-# 2.3) Clean dataframe
-
-# 2.4) Spatial intersect of RE and flag valid/mismatch RE
-
 # 2.5) Create date + accuracy cuts of dataset to run through spatial auditing
 # past was limited to 1995, but look at using reference condition if in PA and no disturbance
 # pass accuracy was 200 m but explore higher threshold to see if anything else of value appears
 # 
 
-#------------------------------------------ 3) Training Data Compiler -------------------------------------------------#
-# 3.1) Flag proximity trigger for roads, re boundary, remnant, hvr, other td points
-# create 90 m buffer around all points using sentinel grid window 9x9
-# intersect point assessment window with trigger layers
-# look at eight surrounding 9x9 assessment windows and check triggers to suggest point relocation
