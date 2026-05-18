@@ -265,6 +265,61 @@ gc()
 
 
 
+########################### QBEIS ASSIGNER
+
+disturbance <- read.csv(file.path(tab_in_dir, "QBEIS_20260212/disturbance.csv"))
+quadrats <- read.csv(file.path(tab_in_dir, "QBEIS_20260212/quadrats.csv"))
+rainforest <- read.csv(file.path(tab_in_dir, "QBEIS_20260212/rainforest_attributes.csv"))
+redd_grouped <- read.csv(file.path(tab_in_dir, "QBEIS_20260212/REDD_grouped_data.csv"))
+redd_history <- read.csv(file.path(tab_in_dir, "QBEIS_20260212/redd_history.csv"))
+regional_ecosystem <- read.csv(file.path(tab_in_dir, "QBEIS_20260212/regional_ecosystem.csv"))
+site_sp <- read.csv(file.path(tab_in_dir, "QBEIS_20260212/site_sp.csv"))
+site_strata <- read.csv(file.path(tab_in_dir, "QBEIS_20260212/site_strata.csv"))
+site <- read.csv(file.path(tab_in_dir, "QBEIS_20260212/site.csv"))
+tree_measures <- read.csv(file.path(tab_in_dir, "QBEIS_20260212/tree_measures.csv"))
+wetland_attributes <- read.csv(file.path(tab_in_dir, "QBEIS_20260212/wetlands_attributes.csv"))
+woody_debris <- read.csv(file.path(tab_in_dir, "QBEIS_20260212/woody_debris.csv"))
+
+
+
+# Filter rows where RE is "Cannot be assigned" or blank
+filtered_site <- site %>%
+  filter(RE == "Cannot be assigned" | RE == "" | is.na(RE))
+
+# View the filtered rows
+print(filtered_site)
+
+# Check the number of rows in the filtered data
+nrow(filtered_site)
+
+
+# Group by the RE column and count unique SITE_IDs
+result <- site %>%
+  group_by(RE) %>%
+  summarise(Number_of_Sites = n_distinct(SITE_ID))
+
+# View the result
+print(result)
+
+
+#PLAN OF ATTACK
+
+# summary <- Left join Site strata and disturbance to site
+# long <- filter site_sp and quadrats by filtered site
+
+# summarise 10 most dominate species for each strata from long, join to summary
+
+# spatial intersect point for RE1-5, and then eight surrounding points at 100, 250, 500m, join RE descriptions
+
+
+
+
+
+
+
+
+
+
 ##### 5) Site scoring #####  
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
 #  ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
@@ -280,6 +335,337 @@ gc()
 # TODO: Incorporate threshold and continous scoring scripts to score sites with BioCondition attributes
 # This script is dependent on QBERD, QBEIS and RAPID site summaries and scoring databricks workflows. 
 # Other misc training sources are stored locally and are not dynamic
+
+
+# 5.2.1) Tree canopy height formula ----------------------------------------------------------------------------------------------------------------------------
+# Define the tree canopy height scoring function
+score_proportion_ch <- function(p) {
+  if (is.na(p)) return(NA)
+  
+  if (p <= 0.1) {
+    return(0)
+  } else if (p <= 0.46) {
+    return((3 / 0.36) * (p - 0.1))
+  } else if (p < 0.7) {
+    return(3 + (2 / 0.23) * (p - 0.46))
+  } else {
+    return(5)
+  }
+}
+
+# Vectorise the function
+score_vec_ch <- Vectorize(score_proportion_ch)
+
+# Apply to dataframe
+cont_scoring_subset <- cont_scoring_subset %>%
+  mutate(
+    edl_h_clean = as.numeric(na_if(EDL.tree.height.proportion.of.benchmark, "NULL")),
+    subcan_h_clean = as.numeric(na_if(Tree.sub.canopy.height.proportion.of.benchmark, "NULL")),
+    score1 = score_vec_ch(edl_h_clean),
+    score2 = score_vec_ch(subcan_h_clean),
+    canopy_height_cont = rowMeans(cbind(score1, score2), na.rm = TRUE)
+  ) %>%
+  select(-edl_h_clean, -subcan_h_clean, -score1, -score2)
+
+# 5.2.2) Tree canopy cover formula -----------------------------------------------------------------------------------------------------------------------------
+# Define the linear piecewise scoring function (AfN - Don Butler) with Teresa tweaks
+score_proportion_cc <- function(p) {
+  if (is.na(p)) return(NA)
+  
+  if (p <= 0) {
+    return(0)
+  } else if (p <= 0.2) {
+    return(10 * p)
+  } else if (p <= 0.5) {
+    return(2 + 10 * (p - 0.2))
+  } else if (p <= 1.5) {
+    return(5)
+  } else if (p <= 2) {
+    return(5 - 4 * (p - 1.5))
+  } else if (p <= 3) {
+    return(3 - 0.5 * (p - 2))
+  } else {
+    return(2.5)
+  }
+}
+
+score_vec <- Vectorize(score_proportion_cc)
+
+# Apply to dataframe
+cont_scoring_subset <- cont_scoring_subset %>%
+  mutate(
+    EDL.canopy.cover.proportion.of.benchmark = na_if(EDL.canopy.cover.proportion.of.benchmark, "NULL"),
+    Subcanopy.cover.proportion.of.benchmark = na_if(Subcanopy.cover.proportion.of.benchmark, "NULL"),
+  ) %>%
+  mutate(
+    edl_ratio = as.numeric(EDL.canopy.cover.proportion.of.benchmark),
+    sub_ratio = as.numeric(Subcanopy.cover.proportion.of.benchmark),
+    edl_score = score_vec(edl_ratio),
+    sub_score = score_vec(sub_ratio),
+    canopy_cover_cont = (edl_score + sub_score) / 2
+  )  %>%
+  select(-edl_ratio, -sub_ratio, -edl_score, -sub_score)
+
+
+
+# 5.2.3) Shrub canopy cover formula ----------------------------------------------------------------------------------------------------------------------------
+# Define the shrub canopy cover scoring function
+score_proportion_sc <- function(p) {
+  if (is.na(p)) return(NA)
+  
+  if (p <= 0.1) {
+    return(0)
+  } else if (p <= 0.3) {
+    return(15 * (p - 0.1))
+  } else if (p <= 0.5) {
+    return(3 + 10 * (p - 0.3))
+  } else if (p <= 2) {
+    return(5)
+  } else if (p <= 4) {
+    return(5 - (p - 2))
+  } else {
+    return(3)
+  }
+}
+
+# Vectorise the function
+score_vec_sc <- Vectorize(score_proportion_sc)
+
+# Apply to dataframe
+cont_scoring_subset <- cont_scoring_subset %>%
+  mutate(
+    shrub_c_clean = as.numeric(na_if(Shrub.canopy.cover.proportion.of.benchmark, "NULL")),
+    shrub_cover_cont = score_vec_sc(shrub_c_clean)  # Use the vectorised function
+  ) %>%
+  select(-shrub_c_clean)
+
+# 5.2.4) Graminoid canopy cover formula ------------------------------------------------------------------------------------------------------------------------
+# Define the graminoid canopy cover scoring function
+score_proportion_gc <- function(p) {
+  if (is.na(p)) return(NA)
+  
+  if (p <= 0.9) {
+    return((50 / 9) * p)
+  } else if (p <= 2) {
+    return(5)
+  } else if (p <= 2.5) {
+    return(5 - 4 * (p - 2))
+  } else {
+    return(3)
+  }
+}
+
+# #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ no high cover penalty function
+# score_proportion_gc <- function(p) {
+#   if (is.na(p)) return(NA)
+#   
+#   if (p <= 0.9) {
+#     return((50 / 9) * p)
+#   } else {
+#     return(5)  # No penalty for p > 0.9
+#   }
+# }
+# #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+# Vectorise the function
+score_vec_gc <- Vectorize(score_proportion_gc)
+
+# Apply to dataframe
+cont_scoring_subset <- cont_scoring_subset %>%
+  mutate(
+    graminoid_c_clean = as.numeric(na_if(Native.perennial.grass.proportion.of.benchmark, "NULL")),
+    graminoid_cover_cont = score_vec_gc(graminoid_c_clean)  # Use the vectorised function
+  ) %>%
+  select(-graminoid_c_clean)
+
+# 5.2.5) Non-native canopy cover formula -----------------------------------------------------------------------------------------------------------------------
+# Define the non-native plant cover scoring function
+score_proportion_nc <- function(x) {
+  if (is.na(x)) return(NA)
+  
+  if (x <= 5) {
+    return(10)
+  } else if (x <= 20) {
+    return(10 - (1/3) * (x - 5))
+  } else if (x <= 37.5) {
+    return(5 - (4/35) * (x - 20))
+  } else if (x <= 75) {
+    return(3 - (2/25) * (x - 37.5))
+  } else {
+    return(0)
+  }
+}
+
+# Vectorise the function
+score_vec_nc <- Vectorize(score_proportion_nc)
+
+# Apply to dataframe
+cont_scoring_subset <- cont_scoring_subset %>%
+  mutate(
+    nn_c_clean = as.numeric(na_if(Non.native.plant.cover..percent., "NULL")),
+    non_native_cover_cont = score_vec_nc(nn_c_clean)  # Use the vectorised function
+  ) %>%
+  select(-nn_c_clean)
+
+# 5.2.6) Litter cover formula ----------------------------------------------------------------------------------------------------------------------------------
+# Define the litter cover scoring function
+score_proportion_lc <- function(p) {
+  if (is.na(p)) return(NA)
+  
+  if (p <= 0.1) {
+    return(0)
+  } else if (p <= 0.3) {
+    return(15 * (p - 0.1))
+  } else if (p <= 0.5) {
+    return(3 + 10 * (p - 0.3))
+  } else if (p <= 2) {
+    return(5)
+  } else if (p <= 2.5) {
+    return(5 - 4 * (p - 2))
+  } else {
+    return(3)
+  }
+}
+
+# Vectorise the function
+score_vec_lc <- Vectorize(score_proportion_lc)
+
+# Apply to dataframe
+cont_scoring_subset <- cont_scoring_subset %>%
+  mutate(
+    clean = as.numeric(na_if(Litter.proportion.of.benchmark, "NULL")),
+    litter_cover_cont = score_vec_lc(clean)  # Use the vectorised function
+  ) %>%
+  select(-clean)
+
+# 5.2.7) Recruitment formula -----------------------------------------------------------------------------------------------------------------------------------
+# Define the recruitment scoring function
+score_proportion_r <- function(p) {
+  if (is.na(p)) return(NA)
+  
+  if (p <= 0.1) {
+    return(0)
+  } else if (p <= 0.49) {
+    return((3 / 0.39) * (p - 0.1))
+  } else if (p < 0.75) {
+    return(3 + (2 / 0.26) * (p - 0.49))
+  } else {
+    return(5)
+  }
+}
+
+# Vectorise the function
+score_vec_r <- Vectorize(score_proportion_r)
+
+# Apply to dataframe
+cont_scoring_subset <- cont_scoring_subset %>%
+  mutate(
+    clean = as.numeric(na_if(Recruitment.proportion.of.benchmark, "NULL")),
+    recruitment_cont = score_vec_r(clean)  # Use the vectorised function
+  ) %>%
+  select(-clean)
+
+# 5.2.8) Coarse Woody Debris formula ---------------------------------------------------------------------------------------------------------------------------
+# Define the coarse woody debris scoring function
+score_proportion_cwd <- function(p) {
+  if (is.na(p)) return(NA)
+  
+  if (p <= 0) {
+    return(0)
+  } else if (p <= 0.5) {
+    return(10 * p)
+  } else if (p <= 2) {
+    return(5)
+  } else if (p <= 3) {
+    return(11 - 3 * p)
+  } else {
+    return(2)
+  }
+}
+
+# Vectorise the function
+score_vec_cwd <- Vectorize(score_proportion_cwd)
+
+# Apply to dataframe
+cont_scoring_subset <- cont_scoring_subset %>%
+  mutate(
+    clean = as.numeric(na_if(Coarse.woody.proportion.of.benchmark, "NULL")),
+    cwd_cont = score_vec_cwd(clean)  # Use the vectorised function
+  ) %>%
+  select(-clean)
+
+# 5.2.9) Species Richness formula ------------------------------------------------------------------------------------------------------------------------------
+# Define the species richness scoring function
+score_proportion_sr <- function(p) {
+  if (is.na(p)) return(NA)
+  
+  if (p <= 0.1) {
+    return(0)
+  } else if (p <= 0.5) {
+    return(6.25 * (p - 0.1))
+  } else if (p <= 0.9) {
+    return(2.5 + 6.25 * (p - 0.5))
+  } else {
+    return(5)
+  }
+}
+
+# Vectorise the function
+score_vec_sr <- Vectorize(score_proportion_sr)
+
+# Columns to apply the scoring function
+cols <- c(
+  "Tree.species.richness.proportion.of.benchmark",
+  "Shrub.species.richness.proportion.of.benchmark",
+  "Grass.species.richness.proportion.of.benchmark",
+  "Forb...other.species.richness.proportion.of.benchmark"
+)
+
+# Ensure the columns are numeric
+cont_scoring_subset[cols] <- lapply(cont_scoring_subset[cols], function(x) as.numeric(as.character(x)))
+
+# Apply the vectorised scoring function to each column and calculate row-wise sums
+cont_scoring_subset <- cont_scoring_subset %>%
+  mutate(
+    species_richness_cont = rowSums(across(all_of(cols), score_vec_sr), na.rm = TRUE)
+  )
+
+
+# 5.2.10) Large Tree formula -----------------------------------------------------------------------------------------------------------------------------------
+# Define the vectorised large trees scoring function
+f_phat_vec <- function(phat, Ei) {
+  # Initialise result as a numeric vector
+  result <- numeric(length(phat))
+  
+  # Condition 1: Ei <= 10
+  condition1 <- Ei <= 10
+  result[condition1 & phat < 0.9] <- 15 * (1 - exp(-5 * phat[condition1 & phat < 0.9]^2.5))
+  result[condition1 & phat >= 0.9 & phat < 1] <- 14.6775 + 3.225 * (phat[condition1 & phat >= 0.9 & phat < 1] - 0.9)
+  result[condition1 & phat >= 1] <- 15
+  
+  # Condition 2: Ei > 10
+  condition2 <- Ei > 10
+  result[condition2 & phat <= 0.9] <- 15 / (1 + exp(-7 * (phat[condition2 & phat <= 0.9] - 0.5)))
+  result[condition2 & phat > 0.9 & phat < 1] <- 14.14 + 8.6 * (phat[condition2 & phat > 0.9 & phat < 1] - 0.9)
+  result[condition2 & phat >= 1] <- 15
+  
+  return(result)
+}
+
+# Clean the column first
+cont_scoring_subset <- cont_scoring_subset %>%
+  mutate(
+    clean_phat = as.numeric(na_if(Large.tree.proportion.of.benchmark, "NULL"))
+  )
+
+# Apply the vectorised function directly
+cont_scoring_subset <- cont_scoring_subset %>%
+  mutate(
+    ltv3_cont = f_phat_vec(clean_phat, Total.lge.tree.benchmark)
+  ) %>%
+  select(-clean_phat)
+
+
 
 
 
@@ -302,7 +688,8 @@ gc()
 #                                          |__|                                                  
 
 # TD_POOL_SCORED <- read.csv(file.path(train_in_dir,"REv13_POI_TEST.csv")) # Use this large dummy POI dataset for testing
-TD_POOL_SCORED <- read.csv(file.path(train_in_dir,"RE_PC_v14_FG_SBC_filtered.csv")) # Use this large dummy POI dataset for testing
+# TD_POOL_SCORED <- read.csv(file.path(train_in_dir,"RE_PC_v14_FG_SBC_filtered.csv")) # Use this large dummy POI dataset for testing
+TD_POOL_SCORED <- read.csv(file.path(train_in_dir,"RE_REM_v14_DTBOO.csv")) # Use this large dummy POI dataset for testing
 
 #   ______    ______      _______         __           __                                                           __              
 #  |    __|  |__    |    |_     _|.---.-.|  |--.--.--.|  |.---.-.----.    .-----.----.-----.----.-----.-----.-----.|__|.-----.-----.
@@ -448,12 +835,12 @@ message("Total extraction time: ", round(difftime(end_time, start_time, units = 
 
 # Bind results back to TD_POOL_SCORED
 results_df <- as.data.frame(results)
-TD_POOL_SCORED <- bind_cols(TD_POOL_SCORED, results_df)
-write.csv(TD_POOL_SCORED, file.path(int_dir, "TD_RE_sampled.csv"), row.names = FALSE)
+TD_POOL_SCORED_sf <- bind_cols(TD_POOL_SCORED_sf, results_df)
+write.csv(TD_POOL_SCORED_sf, file.path(int_dir, "TD_RE_sampled.csv"), row.names = FALSE)
 
 # 6.3.1.3) Add RE flag .........................................................................................................................................
 
-
+# check if all columns are the same, add column called RE_mapping_consistency with "CONSISTENT", "CONSISTENT AFTER COLLECTION" OR "DIFERRENT FROM X, Y, Z..."
 
 
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
@@ -467,13 +854,88 @@ gdb_path <- "project_data/spatial_inputs/RE/v14/HighValueRegrowth_14_0_1_alb.gdb
 # Select layer names and RE1 column from the .gdb and set SLATS_Albers CRS
 gdb_layers <- st_layers(gdb_path)$name
 hvr_layers <- grep("QLD_HIGH_VALUE_REGROWTH_WORKING_V14_0_1", gdb_layers, value = TRUE)
-message("Will process layers: ", paste(re_layers, collapse = ", "))
-attribute_field <- "HVR"
+message("Will process layers: ", paste(hvr_layers, collapse = ", "))
+attribute_fields <- c("Additions", "Losses") # Attributes to extract
 
+# Updated function to extract multiple attributes from a single High-Value Regrowth layer
+extract_HVR_layer <- function(layer_name, pts_sf, attribute_fields,
+                              batch_size = 50000,
+                              gpkg_dir = "project_data/spatial_inputs/RE/v14/HighValueRegrowth_14_0_1_3577",
+                              gdb_path = "project_data/spatial_inputs/RE/v14/HighValueRegrowth_14_0_1_alb.gdb") {
+  # Define cache path for repaired gpkg
+  gpkg_path <- file.path(gpkg_dir, paste0(layer_name, ".gpkg"))
+  dir.create(dirname(gpkg_path), recursive = TRUE, showWarnings = FALSE)
+  # Load layer (use cached gpkg if it exists)
+  if (file.exists(gpkg_path)) {
+    message("Found cached GPKG: ", gpkg_path)
+    hvr_layer <- st_read(gpkg_path, quiet = TRUE) %>% select(all_of(attribute_fields))
+  } else {
+    message("Reading layer from GDB: ", layer_name)
+    hvr_layer <- st_read(gdb_path, layer = layer_name, quiet = TRUE) %>% select(all_of(attribute_fields))
+    # Reproject if needed
+    if (st_crs(hvr_layer) != st_crs(pts_sf)) {
+      hvr_layer <- st_transform(hvr_layer, st_crs(pts_sf))
+    }
+    # Fix invalid geometries
+    invalid_count <- sum(!st_is_valid(hvr_layer), na.rm = TRUE)
+    if (invalid_count > 0) {
+      message("Fixing ", invalid_count, " invalid geometries")
+      fixed_geom <- lwgeom::st_make_valid(st_geometry(hvr_layer))
+      nonempty <- !st_is_empty(fixed_geom)
+      hvr_layer <- st_sf(hvr_layer[nonempty, , drop = FALSE], geometry = fixed_geom[nonempty])
+    }
+    # Save repaired gpkg
+    st_write(hvr_layer, gpkg_path, delete_dsn = TRUE, quiet = TRUE)
+    message("Saved repaired layer to: ", gpkg_path)
+  }
+  # Pre-allocate results for each attribute
+  res <- lapply(attribute_fields, function(x) rep(NA, nrow(pts_sf)))
+  names(res) <- attribute_fields
+  n_chunks <- ceiling(nrow(pts_sf) / batch_size)
+  # Process in batches using sparse intersections
+  for (i in 1:n_chunks) {
+    idx <- ((i-1)*batch_size + 1):min(i*batch_size, nrow(pts_sf))
+    batch <- pts_sf[idx, ]
+    # Sparse intersection
+    hits <- st_intersects(batch, hvr_layer, sparse = TRUE)
+    # Extract attributes
+    for (field in attribute_fields) {
+      res[[field]][idx] <- sapply(hits, function(x) {
+        if(length(x) == 0) return(NA)
+        paste(unique(hvr_layer[[field]][x]), collapse = ",")
+      })
+    }
+    # Free memory
+    rm(batch, hits); gc()
+    message("Processed batch ", i, " of ", n_chunks)
+  }
+  return(res)
+}
 
+# Timed Extraction for High-Value Regrowth layers
+start_time <- Sys.time()
+hvr_results <- list()
+for (layer in hvr_layers) {
+  message("Starting extraction for layer: ", layer)
+  vals <- extract_HVR_layer(layer, TD_POOL_SCORED_sf, attribute_fields = c("Additions", "Losses"), batch_size = 50000)
+  hvr_results[[layer]] <- vals
+}
+end_time <- Sys.time()
+message("Total extraction time: ", round(difftime(end_time, start_time, units = "mins"), 3), " minutes")
+
+# Combine results for all layers and attributes
+hvr_results_combined <- do.call(cbind, lapply(hvr_results, function(layer_res) {
+  as.data.frame(layer_res)
+}))
+colnames(hvr_results_combined) <- unlist(lapply(hvr_results, names))
+
+# Bind results back to TD_POOL_SCORED
+TD_POOL_SCORED_sf <- bind_cols(TD_POOL_SCORED_sf, hvr_results_combined)
+write.csv(TD_POOL_SCORED_sf, file.path(int_dir, "TD_HVR_sampled.csv"), row.names = FALSE)
 
 # 6.3.2.3) Add HVR flag ........................................................................................................................................
 
+### TODO: ADD IN OTHER YEAR HVRs (first check they are not additive or how they are incorporated into REM mapping)
 
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
 #  ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
@@ -482,12 +944,177 @@ attribute_field <- "HVR"
 # 6.3.3.1) Import land use data series  ........................................................................................................................
 # ALUM .gdb file
 gdb_path <- "project_data/spatial_inputs/ALUM_land_use/QLD_LANDUSE_June_2019.gdb"
+# BOO INTEGRITY
+gpkg_path <- "project_data/spatial_inputs/Desktop_BOO/BOO_INTEGRITY.gpkg"
 # DEA LANDSAT LANDCOVER http://dea-public-data.s3-website-ap-southeast-2.amazonaws.com/?prefix=derivative/ga_ls_landcover_class_cyear_3/2-0-0/continental_mosaics/
 dea_tif_files <- list.files(path = "project_data/spatial_inputs/DEA_landcover", pattern = "\\.tif$", full.names = TRUE, recursive = TRUE)
 # HUMAN MODIFICATION INDEX https://gee-community-catalog.org/projects/ghm-v3/
 hmi_tif_files <- list.files(path = "project_data/spatial_inputs/human_modification_v3", pattern = "\\.tif$", full.names = TRUE, recursive = TRUE)
 
+
+gdb_path_alum <- "project_data/spatial_inputs/ALUM_land_use/QLD_LANDUSE_June_2019.gdb" # ALUM .gdb file
+gpkg_path_boo <- "project_data/spatial_inputs/Desktop_BOO/BOO_INTEGRITY.gpkg" # BOO Integrity .gpkg file
+
+
 # 6.3.3.2) Sample the gdb in chunks ............................................................................................................................
+
+# 6.3.3) Sampling ALUM and BOO GPKG Files
+# Paths to the .gpkg files
+alum_path <- "project_data/spatial_inputs/ALUM_land_use/QLD_LANDUSE_June_2019_3577/"
+boo_path <- "project_data/spatial_inputs/Desktop_BOO/BOO_INTEGRITY.gpkg"
+
+# Function to extract attributes from a .gpkg file
+extract_gpkg_layer <- function(gpkg_path, pts_sf, attribute_fields,
+                               batch_size = 50000) {
+  # Read the .gpkg file
+  message("Reading GPKG: ", gpkg_path)
+  gpkg_layer <- st_read(gpkg_path, quiet = TRUE) %>% select(all_of(attribute_fields))
+  
+  # Reproject if needed
+  if (st_crs(gpkg_layer) != st_crs(pts_sf)) {
+    gpkg_layer <- st_transform(gpkg_layer, st_crs(pts_sf))
+  }
+  
+  # Fix invalid geometries
+  invalid_count <- sum(!st_is_valid(gpkg_layer), na.rm = TRUE)
+  if (invalid_count > 0) {
+    message("Fixing ", invalid_count, " invalid geometries in ", gpkg_path)
+    fixed_geom <- lwgeom::st_make_valid(st_geometry(gpkg_layer))
+    nonempty <- !st_is_empty(fixed_geom)
+    gpkg_layer <- st_sf(gpkg_layer[nonempty, , drop = FALSE], geometry = fixed_geom[nonempty])
+  }
+  
+  # Pre-allocate results for each attribute
+  res <- lapply(attribute_fields, function(x) rep(NA, nrow(pts_sf)))
+  names(res) <- attribute_fields
+  n_chunks <- ceiling(nrow(pts_sf) / batch_size)
+  
+  # Process in batches using sparse intersections
+  for (i in 1:n_chunks) {
+    idx <- ((i-1)*batch_size + 1):min(i*batch_size, nrow(pts_sf))
+    batch <- pts_sf[idx, ]
+    # Sparse intersection
+    hits <- st_intersects(batch, gpkg_layer, sparse = TRUE)
+    # Extract attributes
+    for (field in attribute_fields) {
+      res[[field]][idx] <- sapply(hits, function(x) {
+        if(length(x) == 0) return(NA)
+        paste(unique(gpkg_layer[[field]][x]), collapse = ",")
+      })
+    }
+    # Free memory
+    rm(batch, hits); gc()
+    message("Processed batch ", i, " of ", n_chunks)
+  }
+  return(res)
+}
+
+# 6.3.3.1) Process ALUM GPKG files
+alum_gpkgs <- list.files(alum_path, pattern = "\\.gpkg$", full.names = TRUE)
+alum_results <- list()
+
+for (gpkg in alum_gpkgs) {
+  # Extract the base name of the .gpkg file (e.g., "QLD_LANDUSE_1999_X.gpkg")
+  gpkg_name <- tools::file_path_sans_ext(basename(gpkg))
+  
+  # Extract the year or identifier from the file name (e.g., "1999" or "CURRENT")
+  gpkg_suffix <- gsub("QLD_LANDUSE_", "", gpkg_name) # Remove the prefix
+  gpkg_suffix <- gsub("_X", "", gpkg_suffix)        # Remove the "_X" suffix
+  
+  message("Starting extraction for ALUM GPKG: ", gpkg)
+  vals <- extract_gpkg_layer(gpkg, TD_POOL_SCORED_sf, attribute_fields = c("ALUM_Code"), batch_size = 50000)
+  
+  # Ensure vals is a data frame
+  vals_df <- as.data.frame(vals)
+  
+  # Rename the column(s) in the result to include the suffix
+  colnames(vals_df) <- paste0(names(vals_df), "_", gpkg_suffix)
+  
+  # Store the results
+  alum_results[[gpkg_suffix]] <- vals_df
+}
+
+# Combine results for all ALUM GPKG files
+alum_results_combined <- do.call(cbind, alum_results)
+
+# 6.3.3.2) Process BOO GPKG file
+boo_results <- extract_gpkg_layer(boo_path, TD_POOL_SCORED_sf, attribute_fields = c("INTEGRITY_TYPE", "INTEGRITY_CLASS"), batch_size = 50000)
+
+# Combine BOO results into a data frame
+boo_results_df <- as.data.frame(boo_results)
+
+# Bind results back to TD_POOL_SCORED
+TD_POOL_SCORED_sf <- bind_cols(TD_POOL_SCORED_sf, alum_results_combined, boo_results_df)
+write.csv(TD_POOL_SCORED, file.path(int_dir, "TD_ALUM_BOO_sampled.csv"), row.names = FALSE)
+
+
+############################################################################################################################### WORKING FOR QLUM AND BOO ABOVE
+
+# 6.3.4) Sampling DEA LANDSAT LANDCOVER and HUMAN MODIFICATION INDEX Rasters
+
+# File paths
+dea_tif_files <- list.files(path = "project_data/spatial_inputs/DEA_landcover", pattern = "\\.tif$", full.names = TRUE, recursive = TRUE)
+hmi_tif_files <- list.files(path = "project_data/spatial_inputs/human_modification_v3", pattern = "\\.tif$", full.names = TRUE, recursive = TRUE)
+
+# Combine all raster files into a single list with labels
+raster_files <- list(
+  DEA = dea_tif_files,
+  HMI = hmi_tif_files
+)
+
+# Process each raster file
+for (category in names(raster_files)) {
+  tif_files <- raster_files[[category]]
+  
+  for (tif_file in tif_files) {
+    # Extract year or identifier from filename
+    if (category == "DEA") {
+      # Extract year from DEA file names (e.g., "ga_ls_landcover_class_cyear_3_mosaic_1988--P1Y_level3.tif")
+      year <- gsub(".*mosaic_(\\d{4}).*", "\\1", basename(tif_file))
+      col_name <- paste0("LS_Landcover_", year)
+    } else if (category == "HMI") {
+      # Extract year from HMI file names (e.g., "HMv20240801_1990c_AA_300_20250225_3577.tif")
+      year <- gsub(".*_(\\d{4})c_.*", "\\1", basename(tif_file))
+      col_name <- paste0("HMIv3_", year)
+    }
+    
+    message("Processing: ", basename(tif_file), " (", col_name, ")")
+    
+    # Load raster
+    r <- rast(tif_file)
+    
+    # Initialize result vector
+    sampled_values <- rep(NA, nrow(TD_POOL_SCORED_vect))
+    
+    # Process in chunks
+    n_chunks <- ceiling(nrow(TD_POOL_SCORED_vect) / chunk_size)
+    for (i in seq_len(n_chunks)) {
+      start_idx <- (i - 1) * chunk_size + 1
+      end_idx <- min(i * chunk_size, nrow(TD_POOL_SCORED_vect))
+      
+      # Sample chunk
+      chunk <- TD_POOL_SCORED_vect[start_idx:end_idx]
+      sampled_values[start_idx:end_idx] <- terra::extract(r, chunk)[, 2]
+      
+      # Clean up
+      rm(chunk)
+      gc()
+      message(sprintf("  Chunk %d/%d processed", i, n_chunks))
+    }
+    
+    # Add results to TD_POOL_SCORED_sf
+    TD_POOL_SCORED_sf[[col_name]] <- sampled_values
+    
+    # Clean up
+    rm(r, sampled_values)
+    gc()
+  }
+}
+
+# Save intermediate results
+st_write(TD_POOL_SCORED_sf, file.path(int_dir, "TD_POOL_SCORED_DEA_HMI_sampled.gpkg"), quiet = TRUE, delete_dsn = TRUE)
+
+
 
 # 6.3.3.3) Add land use flags ..................................................................................................................................
 
@@ -996,7 +1623,7 @@ add_clearing_summary_columns <- function(data) {
 
 system.time({TD_POOL_SCORED_sf <- add_clearing_summary_columns(TD_POOL_SCORED_sf)})
 
-# TODO: look at efficiency improvements to function ----> ~2338 seconds = 40 mins
+# TODO: look at efficiency improvements to function ----> ~2338 seconds = 40 mins.  1470 or 24 mins on 20260515
 
 write.csv(TD_POOL_SCORED_sf, file.path(int_dir, "TD_POOL_SCORED_slats_sampled_checking.csv"), row.names = FALSE)
 
@@ -1117,3 +1744,7 @@ write.csv(TD_POOL_SCORED_sf, file.path(int_dir, "TD_POOL_SCORED_slats_sampled_ch
 # pass accuracy was 200 m but explore higher threshold to see if anything else of value appears
 # 
 
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# FINAL AUDIT OF REFERENCE SITES ---->>>>> Run PCA and within group dispersion test to find outliers for each RE reference state site within TD (20260220)
+# https://scikit-learn.org/stable/modules/outlier_detection.html
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
