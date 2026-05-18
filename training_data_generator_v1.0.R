@@ -842,6 +842,71 @@ write.csv(TD_POOL_SCORED_sf, file.path(int_dir, "TD_RE_sampled.csv"), row.names 
 
 # check if all columns are the same, add column called RE_mapping_consistency with "CONSISTENT", "CONSISTENT AFTER COLLECTION" OR "DIFERRENT FROM X, Y, Z..."
 
+# Convert to data.table for efficiency
+TD_POOL_SCORED_dt <- as.data.table(TD_POOL_SCORED_sf)
+
+# Ensure COLLECTION_DATE is in Date format
+TD_POOL_SCORED_dt[, COLLECTION_DATE := as.Date(COLLECTION_DATE, format = "%d/%m/%Y")]
+
+# Identify RE columns and create a matrix of RE values for comparison
+re_cols <- grep("^RE_\\d{4}$", names(TD_POOL_SCORED_dt), value = TRUE)
+re_matrix <- as.matrix(TD_POOL_SCORED_dt[, ..re_cols])
+
+# Generate RE_mapping_consistency column
+TD_POOL_SCORED_dt[, RE1_mapping_consistency := {
+  unique_vals <- apply(re_matrix, 1, unique) # Find unique values in each row
+  consistent <- lengths(unique_vals) == 1 # Check if all values are the same
+  result <- rep(NA_character_, .N)   # Pre-allocate result vector
+  result[consistent] <- "CONSISTENT"   # Mark consistent rows
+  # Handle inconsistent rows
+  if (any(!consistent)) {
+    inconsistent_rows <- which(!consistent)
+    # For each inconsistent row, determine the differences
+    result[inconsistent_rows] <- sapply(inconsistent_rows, function(i) {
+      row_vals <- re_matrix[i, ]
+      unique_row_vals <- unique(row_vals)
+      # Find years of inconsistency
+      diff_vals <- unique_row_vals[unique_row_vals != unique_row_vals[1]]
+      diff_years <- re_cols[row_vals %in% diff_vals]
+      # Format differences
+      diff_text <- paste0(diff_vals, " (", gsub("RE_", "", diff_years), ")")
+      # Check if inconsistency occurs after COLLECTION_DATE
+      collection_year <- as.numeric(format(COLLECTION_DATE[i], "%Y"))
+      inconsistent_after <- any(as.numeric(gsub("RE_", "", diff_years)) > collection_year)
+      if (inconsistent_after) {
+        paste("CONSISTENT AFTER COLLECTION:", paste(diff_text, collapse = ", "))
+      } else {
+        paste("DIFFERENT FROM:", paste(diff_text, collapse = ", "))
+      }
+    })
+  }
+  result
+}]
+
+# Add new columns with TRUE/FALSE logic
+TD_POOL_SCORED_dt[, `:=`(
+  RE1_Preclear_same = RE1 == RE_PreClearing,  # Check if RE1 equals RE_PreClearing
+  RE1_2017_same = RE1 == RE_2017,            # Check if RE1 equals RE_2017
+  RE1_2019_same = RE1 == RE_2019,            # Check if RE1 equals RE_2017
+  RE1_2021_same = RE1 == RE_2021,            # Check if RE1 equals RE_2021
+  RE1_2023_same = RE1 == RE_2023             # Check if RE1 equals RE_2023
+)]
+
+# Write the updated data.table to a CSV file
+fwrite(TD_POOL_SCORED_dt, file.path(int_dir, "TD_RE_sampled_with_flags.csv"))
+
+# Join back to TD_POOL_SCORED_sf and clean up
+generated_columns <- c("fid", "RE1_mapping_consistency", 
+                       "RE1_Preclear_same", "RE1_2017_same", 
+                       "RE1_2021_same", "RE1_2023_same")
+TD_generated_dt <- TD_POOL_SCORED_dt[, ..generated_columns]
+re_cols_to_remove <- grep("^RE_", names(TD_POOL_SCORED_sf), value = TRUE)
+TD_POOL_SCORED_sf[, (re_cols_to_remove) := NULL]
+TD_POOL_SCORED_sf <- merge(TD_POOL_SCORED_sf, TD_generated_dt, by = "fid", all.x = TRUE)
+rm(TD_POOL_SCORED_dt, TD_generated_dt, re_matrix, re_cols, re_cols_to_remove, re_layer, re_columns, re_layers, re_years, vals, extract_RE_layer, 
+   check_consistency)
+gc()
+
 
 #  ██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗██╗
 #  ╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝╚═╝
